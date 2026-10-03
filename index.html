@@ -347,9 +347,11 @@ svg{display:block}
   box-shadow:4px 4px 0 #05060d;transition:.14s;
   clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px)
 }
-.mem:before{content:"?";position:absolute;inset:0;display:grid;place-items:center;color:#525a80;font-family:"Press Start 2P";font-size:16px}
+.mem:before{content:"?";position:absolute;inset:0;z-index:2;display:grid;place-items:center;color:#525a80;font-family:"Press Start 2P";font-size:16px;background:linear-gradient(180deg,#12172f,#0d1125)}
+.mem img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.08);transition:.18s;pointer-events:none;user-select:none}
 .mem.open,.mem.done{color:#fff;background:#242b52;transform:translate(-2px,-2px);box-shadow:6px 6px 0 #05060d}
 .mem.open:before,.mem.done:before{display:none}
+.mem.open img,.mem.done img{opacity:1;transform:scale(1)}
 .mem.done{outline:1px solid rgba(143,225,187,.5);box-shadow:5px 5px 0 #08271d}
 
 
@@ -639,6 +641,44 @@ svg{display:block}
   .music-dock{bottom:118px!important}
 }
 
+
+/* bottom controls */
+.bottom-actions{
+  position:fixed;left:50%;bottom:64px;z-index:46;
+  transform:translateX(-50%);
+  display:flex;align-items:stretch;justify-content:center;gap:9px;
+  width:min(520px,calc(100% - 24px));
+}
+.bottom-actions .music-dock,
+.bottom-actions .panic{
+  position:static!important;
+  inset:auto!important;
+  width:auto!important;
+  flex:1 1 0;
+}
+.bottom-actions .music-chip,
+.bottom-actions .panic .btn{
+  width:100%;height:44px;min-height:44px;
+  display:flex;align-items:center;justify-content:center;
+}
+.bottom-actions .music-chip{padding:10px 13px}
+.bottom-actions .music-copy{flex:0 1 auto}
+.bottom-actions .music-bars{margin-left:7px}
+.mini-count{display:none!important}
+
+@media(max-width:760px){
+  .bottom-actions{
+    bottom:68px;
+    width:min(430px,calc(100% - 18px));
+    gap:7px
+  }
+  .bottom-actions .panic .btn{
+    font-size:7px;padding:10px 12px
+  }
+  .bottom-actions .panic .btn span{display:inline}
+  .bottom-actions .music-chip strong{font-size:7px}
+}
+
 </style>
 </head>
 <body>
@@ -896,19 +936,18 @@ svg{display:block}
 </div>
 <footer class="love-footer">Criado com muito amor por Rafael para IA <span class="footer-heart">❤️</span></footer>
 
-<div class="music-dock" id="musicDock">
-  <button class="music-chip" id="musicOpen" type="button" aria-label="Clique aqui para ativar ou pausar o som" aria-pressed="false">
-    <svg class="icon" style="color:var(--gold)"><use href="#i-volume"/></svg>
-    <div class="music-copy"><strong>CLIQUE AQUI</strong></div>
-    <span class="music-bars" id="musicBars" aria-hidden="true"><i></i><i></i><i></i></span>
-  </button>
+<div class="bottom-actions">
+  <div class="music-dock" id="musicDock">
+    <button class="music-chip" id="musicOpen" type="button" aria-label="Clique aqui para ativar ou pausar o som" aria-pressed="false">
+      <svg class="icon" style="color:var(--gold)"><use href="#i-volume"/></svg>
+      <div class="music-copy"><strong>CLIQUE AQUI</strong></div>
+      <span class="music-bars" id="musicBars" aria-hidden="true"><i></i><i></i><i></i></span>
+    </button>
+  </div>
+  <div class="panic">
+    <button class="btn with-icon" onclick="saudade()"><svg class="icon"><use href="#i-heart"/></svg><span>SAUDADE</span></button>
+  </div>
 </div>
-
-<div class="panic">
-  <button class="btn with-icon" onclick="saudade()"><svg class="icon"><use href="#i-heart"/></svg><span>SAUDADE</span></button>
-</div>
-<div class="mini-count" id="miniCount">--:--:--</div>
-
 <div class="modal" id="modal">
   <div class="card">
     <div class="modal-icon"><svg class="icon xl"><use href="#i-heart"/></svg></div>
@@ -984,13 +1023,11 @@ function tick(){
   q('#s').textContent=pad(s);
 
   if(s!==lastSecond){bump(q('#s'));lastSecond=s}
-  q('#miniCount').textContent=pad(d)+'D '+pad(h)+':'+pad(m)+':'+pad(s);
 
   if(x<=0){
     q('#heroKicker').textContent='FINALMENTE';
     q('#heroTitle').innerHTML='CHEGOU O <span class="pink">GRANDE DIA</span> ♡';
     q('#heroLead').textContent='É sexta. A contagem acabou — agora começa a parte que eu mais estava esperando.';
-    q('#miniCount').textContent='É SEXTA ♡';
     document.title='Chegou o grande dia ♡';
   }
   updateVault();
@@ -1098,7 +1135,16 @@ function resetHearts(){
 createHearts();
 
 /* memory */
-const icons=['🌙','📖','✨','☕','🌹','🐈','💌','⭐'];
+const memoryPhotos=[
+  './assets/ChatGPT Image 29 de mai. de 2026, 17_58_21~2.png',
+  './assets/IMG-20260816-WA0061.jpg',
+  './assets/IMG-20260816-WA0092.jpg',
+  './assets/IMG-20260816-WA0113.jpg',
+  './assets/IMG-20260901-WA0034.jpg',
+  './assets/IMG-20260901-WA0074.jpg',
+  './assets/IMG-20261001-WA0028.jpg',
+  './assets/IMG-20261001-WA0029.jpg'
+];
 let open=[],pairs=0,busy=false;
 
 function createMemory(){
@@ -1108,12 +1154,17 @@ function createMemory(){
   q('#ms').textContent='Pares encontrados: 0/8';
   q('#memoryActions').classList.remove('show');
 
-  const deck=[...icons,...icons].sort(()=>Math.random()-.5);
-  deck.forEach(ic=>{
+  const deck=[...memoryPhotos,...memoryPhotos].sort(()=>Math.random()-.5);
+  deck.forEach(src=>{
     const b=document.createElement('button');
     b.className='mem';
-    b.textContent=ic;
-    b.dataset.i=ic;
+    b.dataset.i=src;
+    const img=document.createElement('img');
+    img.src=src;
+    img.alt='';
+    img.draggable=false;
+    img.decoding='async';
+    b.appendChild(img);
     b.onclick=()=>{
       if(busy||b.classList.contains('done')||b.classList.contains('open'))return;
       b.classList.add('open');open.push(b);
@@ -1252,7 +1303,7 @@ function updateVault(){
 }
 refreshProgress();
 </script>
-<script src="./sound.js?v=8"></script>
+<script src="./sound.js?v=9"></script>
 
 </body>
 </html>
