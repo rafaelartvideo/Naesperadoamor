@@ -663,9 +663,9 @@ svg{display:block}
   <div class="hero">
     <div class="wrap hero-inner">
       <div class="hero-icon"><svg class="icon xl"><use href="#i-moon"/></svg></div>
-      <div class="kicker">CONTAGEM REGRESSIVA PARA NÓS DOIS</div>
-      <h1 class="pixel-title">ATÉ <span class="pink">SEXTA</span> ♡</h1>
-      <p class="lead">A espera virou um pequeno mundo com jogos, bilhetes e surpresas. Cada fase concluída deixa a sexta um pouquinho mais perto.</p>
+      <div class="kicker" id="heroKicker">CONTAGEM REGRESSIVA PARA NÓS DOIS</div>
+      <h1 class="pixel-title" id="heroTitle">ATÉ <span class="pink">SEXTA</span> ♡</h1>
+      <p class="lead" id="heroLead">A espera virou um pequeno mundo com jogos, bilhetes e surpresas. Cada fase concluída deixa a sexta um pouquinho mais perto.</p>
 
       <div class="timer">
         <div class="time"><b id="d">00</b><span>DIAS</span></div>
@@ -885,7 +885,7 @@ svg{display:block}
     <div class="head">
       <small>FINAL</small>
       <h2>COFRE DE SEXTA</h2>
-      <p>Complete os jogos para conseguir a chave. Mesmo com a chave, o cofre só abre sexta às 18h.</p>
+      <p>Complete os jogos para conseguir a chave. Mesmo com a chave, o cofre só abre quando a sexta começar.</p>
     </div>
     <div class="card vault">
       <div class="lock-icon" id="lockIcon"><svg class="icon xl"><use href="#i-lock"/></svg></div>
@@ -923,7 +923,7 @@ svg{display:block}
 </div>
 
 <script>
-const TARGET=new Date('2026-10-09T18:00:00-03:00').getTime();
+const TARGET=new Date('2026-10-09T00:00:00-03:00').getTime();
 const q=s=>document.querySelector(s);
 const qa=s=>[...document.querySelectorAll(s)];
 const pad=n=>String(Math.max(0,n)).padStart(2,'0');
@@ -989,6 +989,14 @@ function tick(){
 
   if(s!==lastSecond){bump(q('#s'));lastSecond=s}
   q('#miniCount').textContent=pad(d)+'D '+pad(h)+':'+pad(m)+':'+pad(s);
+
+  if(x<=0){
+    q('#heroKicker').textContent='FINALMENTE';
+    q('#heroTitle').innerHTML='CHEGOU O <span class="pink">GRANDE DIA</span> ♡';
+    q('#heroLead').textContent='É sexta. A contagem acabou — agora começa a parte que eu mais estava esperando.';
+    q('#miniCount').textContent='É SEXTA ♡';
+    document.title='Chegou o grande dia ♡';
+  }
   updateVault();
 }
 setInterval(tick,1000);tick();
@@ -1039,7 +1047,7 @@ function saudade(){
     q('#rain').appendChild(e);
     setTimeout(()=>e.remove(),4000);
   }
-  modal('SAUDADE DETECTADA','Diagnóstico: falta pouco. Recomendação: sobreviver até sexta, 18h. ♡');
+  modal('SAUDADE DETECTADA','Diagnóstico: falta pouco. Recomendação: sobreviver até a sexta chegar. ♡');
 }
 
 /* hearts */
@@ -1147,7 +1155,7 @@ createMemory();
 const quiz=[
   {q:'Quando a saudade bate, o que resolve melhor?',o:['Uma mensagem inesperada','Uma ligação longa','Um abraço — então nada resolve até sexta']},
   {q:'Qual é o maior inimigo dessa semana?',o:['O relógio','A distância','O calendário inteiro']},
-  {q:'Se a sexta fosse um filme, qual seria o gênero?',o:['Romance','Comédia romântica','Suspense: será que 18h chega?']},
+  {q:'Se a sexta fosse um filme, qual seria o gênero?',o:['Romance','Comédia romântica','Suspense: será que sexta chega?']},
   {q:'Qual deveria ser a duração ideal do encontro?',o:['Algumas horas','A noite toda','Tecnicamente: sem horário pra acabar']},
   {q:'Última pergunta: valeu abrir esse site?',o:['Sim','Muito','Vou fingir que não achei fofo']}
 ];
@@ -1187,7 +1195,7 @@ qa('.choices').forEach(g=>g.querySelectorAll('.choice').forEach(b=>b.onclick=()=
   pick[g.dataset.g]=b.dataset.v;
   if(Object.values(pick).every(Boolean)){
     q('#ticket').classList.add('show');
-    q('#ticket').innerHTML='<b>'+svgIcon('i-ticket')+' INGRESSO PARA SEXTA</b><br><br>'+pick.start+' · '+pick.vibe+' · '+pick.end+'<br><br><span style="color:var(--muted)">Validade: 09/10/2026, a partir das 18h. Companhia obrigatória: eu. ♡</span>';
+    q('#ticket').innerHTML='<b>'+svgIcon('i-ticket')+' INGRESSO PARA SEXTA</b><br><br>'+pick.start+' · '+pick.vibe+' · '+pick.end+'<br><br><span style="color:var(--muted)">Validade: 09/10/2026, o grande dia inteiro. Companhia obrigatória: eu. ♡</span>';
     q('#dateActions').classList.add('show');
     if(!state.date){state.date=true;save();celebrate('Ingresso emitido. Agora só falta a sexta chegar.');}
   }
@@ -1239,18 +1247,18 @@ function updateVault(){
   }else if(!timeReady){
     icon.innerHTML='<svg class="icon xl"><use href="#i-key"/></svg>';
     q('#vt').textContent='VOCÊ CONSEGUIU A CHAVE.';
-    q('#vp').textContent='Mas o cofre ainda está esperando sexta, às 18h.';
+    q('#vp').textContent='Mas o cofre ainda está esperando a sexta começar.';
     q('#vb').textContent='A chave funciona. O tempo ainda não.';
   }else{
     icon.innerHTML='<svg class="icon xl"><use href="#i-unlock"/></svg>';
-    q('#vt').textContent='CHEGOU A HORA. ♡';
-    q('#vp').textContent='Agora a melhor parte acontece fora da tela.';
+    q('#vt').textContent='CHEGOU O GRANDE DIA. ♡';
+    q('#vp').textContent='Finalmente é sexta. Agora a melhor parte acontece fora da tela.';
     q('#vb').innerHTML='<b>Fecha o site e vem me ver.</b> ♡';
   }
 }
 refreshProgress();
 </script>
-<script src="./sound.js?v=6"></script>
+<script src="./sound.js?v=7"></script>
 
 </body>
 </html>
