@@ -600,6 +600,45 @@ svg{display:block}
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;scroll-behavior:auto!important}
 }
+
+/* sequential navigation */
+.simple-nav{justify-content:space-between}
+.simple-nav .brand{flex:1}
+.simple-nav .progress-dots{margin-left:auto}
+.home-grid{display:none!important}
+
+.love-footer{
+  position:fixed!important;
+  left:0;right:0;bottom:0;z-index:38;
+  width:100%!important;
+  margin:0!important;
+  padding:11px 14px max(11px,env(safe-area-inset-bottom))!important;
+  background:rgba(7,9,22,.94);
+  backdrop-filter:blur(14px);
+  border-top:1px solid rgba(255,255,255,.08)!important;
+  font-size:7px;
+}
+.app{padding-bottom:54px}
+.panic{bottom:64px}
+.mini-count{bottom:64px}
+.music-dock{bottom:106px}
+
+@media(max-width:760px){
+  .app{padding-bottom:58px}
+  .topbar{
+    position:sticky!important;top:0!important;bottom:auto!important;
+    padding:8px 0!important;
+    border-top:0!important;border-bottom:1px solid var(--line)!important;
+  }
+  .nav{width:min(100% - 18px,1080px)!important;display:flex!important}
+  .brand{display:flex!important}
+  .brand-sub{display:none!important}
+  .simple-nav .progress-dots{display:flex!important}
+  .panic{bottom:72px}
+  .mini-count{bottom:72px}
+  .music-dock{bottom:118px!important}
+}
+
 </style>
 </head>
 <body>
@@ -634,28 +673,16 @@ svg{display:block}
 
 <div class="app">
 <header class="topbar">
-  <nav class="nav">
+  <nav class="nav simple-nav">
     <div class="brand">
       <div class="brand-mark"><svg class="icon"><use href="#i-heart"/></svg></div>
       <div class="brand-copy">
         <div class="brand-title">ATÉ SEXTA</div>
-        <div class="brand-sub">um joguinho de espera</div>
+        <div class="brand-sub">uma fase de cada vez</div>
       </div>
       <span class="score" id="score">0/5</span>
     </div>
-
-    <div class="tabs-shell">
-      <div class="tabs" id="tabs">
-        <button class="tab active" data-view="home"><svg class="icon"><use href="#i-home"/></svg><span class="tab-label">INÍCIO</span></button>
-        <button class="tab" data-view="hearts"><svg class="icon"><use href="#i-heart"/></svg><span class="tab-label">CORAÇÕES</span></button>
-        <button class="tab" data-view="memory"><svg class="icon"><use href="#i-grid"/></svg><span class="tab-label">MEMÓRIA</span></button>
-        <button class="tab" data-view="quiz"><svg class="icon"><use href="#i-quiz"/></svg><span class="tab-label">QUIZ</span></button>
-        <button class="tab" data-view="date"><svg class="icon"><use href="#i-calendar"/></svg><span class="tab-label">ENCONTRO</span></button>
-        <button class="tab" data-view="notes"><svg class="icon"><use href="#i-mail"/></svg><span class="tab-label">BILHETES</span></button>
-        <button class="tab" data-view="vault"><svg class="icon"><use href="#i-lock"/></svg><span class="tab-label">COFRE</span></button>
-      </div>
-      <div class="progress-dots" id="progressDots"><i></i><i></i><i></i><i></i><i></i></div>
-    </div>
+    <div class="progress-dots" id="progressDots"><i></i><i></i><i></i><i></i><i></i></div>
   </nav>
 </header>
 
@@ -679,38 +706,7 @@ svg{display:block}
         <button class="btn alt with-icon" onclick="saudade()"><svg class="icon"><use href="#i-heart"/></svg>BOTÃO DA SAUDADE</button>
       </div>
 
-      <div class="home-grid">
-        <button class="launch" data-go="hearts">
-          <div class="launch-icon"><svg class="icon lg"><use href="#i-heart"/></svg></div>
-          <b>CAÇA AOS CORAÇÕES</b>
-          <span>Encontre os 7 corações perdidos.</span>
-        </button>
-        <button class="launch" data-go="memory">
-          <div class="launch-icon"><svg class="icon lg"><use href="#i-grid"/></svg></div>
-          <b>JOGO DA MEMÓRIA</b>
-          <span>Faça os 8 pares antes de esquecer de mim.</span>
-        </button>
-        <button class="launch" data-go="quiz">
-          <div class="launch-icon"><svg class="icon lg"><use href="#i-quiz"/></svg></div>
-          <b>QUIZ DE NÓS</b>
-          <span>Um teste nada científico sobre a nossa espera.</span>
-        </button>
-        <button class="launch" data-go="date">
-          <div class="launch-icon"><svg class="icon lg"><use href="#i-calendar"/></svg></div>
-          <b>MONTE O ENCONTRO</b>
-          <span>Crie o ingresso oficial da sexta.</span>
-        </button>
-        <button class="launch" data-go="notes">
-          <div class="launch-icon"><svg class="icon lg"><use href="#i-mail"/></svg></div>
-          <b>BILHETES</b>
-          <span>Abra quando quiser um lembrete meu.</span>
-        </button>
-        <button class="launch" data-go="vault">
-          <div class="launch-icon"><svg class="icon lg"><use href="#i-lock"/></svg></div>
-          <b>COFRE DE SEXTA</b>
-          <span>Ganhe a chave nos jogos. O relógio decide quando abrir.</span>
-        </button>
-      </div>
+      
     </div>
   </div>
 </section>
@@ -955,7 +951,7 @@ function refreshProgress(){
   const map={hearts:'hearts',memory:'memory',quiz:'quiz',date:'date',notes:'notes'};
   const done=keys.filter(k=>state[k]).length;
 
-  q('#score').textContent=done+'/5';
+  if(q('#score')) q('#score').textContent=done+'/5';
   q('#keyProgress').textContent=done+'/5 PARTES';
 
   qa('#progressDots i').forEach((dot,i)=>dot.classList.toggle('on',i<done));
@@ -1003,10 +999,8 @@ setInterval(tick,1000);tick();
 
 function show(id){
   qa('.view').forEach(v=>v.classList.toggle('active',v.id===id));
-  qa('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===id));
   scrollTo({top:0,behavior:'smooth'});
 }
-qa('[data-view]').forEach(b=>b.onclick=()=>show(b.dataset.view));
 qa('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 
 function modal(t,p){
@@ -1258,7 +1252,7 @@ function updateVault(){
 }
 refreshProgress();
 </script>
-<script src="./sound.js?v=7"></script>
+<script src="./sound.js?v=8"></script>
 
 </body>
 </html>
