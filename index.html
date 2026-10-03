@@ -1,268 +1,328 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#050916" />
-  <meta name="description" content="Uma pequena contagem regressiva para sexta-feira." />
-  <title>Até sexta ♡</title>
-  <style>
-    :root{
-      --night:#050916;
-      --night-2:#081126;
-      --ink:#f7ecd7;
-      --muted:#b9b6c5;
-      --gold:#ffc85a;
-      --gold-2:#ff9f3d;
-      --lavender:#d7a7ff;
-      --panel:rgba(4,8,20,.88);
-      --border:rgba(255,200,90,.34);
-      --shadow:0 0 22px rgba(255,184,70,.25);
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;background:var(--night);color:var(--ink)}
-    body{
-      min-height:100svh;
-      overflow-x:hidden;
-      font-family:"Courier New",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-      image-rendering:pixelated;
-    }
-    .scene{
-      min-height:100svh;
-      position:relative;
-      isolation:isolate;
-      display:grid;
-      place-items:center;
-      padding:clamp(18px,3vw,42px);
-      background:
-        radial-gradient(circle at 22% 72%,rgba(255,163,61,.10),transparent 30%),
-        linear-gradient(90deg,rgba(4,7,17,.05) 0 38%,rgba(4,7,17,.62) 58%,rgba(4,7,17,.96) 100%),
-        url("./pixel-scene.svg") center/cover no-repeat;
-    }
-    .scene::before{
-      content:"";
-      position:absolute;inset:0;z-index:-1;pointer-events:none;
-      background:
-        linear-gradient(to bottom,rgba(2,5,13,.06),rgba(2,5,13,.18)),
-        repeating-linear-gradient(to bottom,rgba(255,255,255,.012) 0 1px,transparent 1px 4px);
-      mix-blend-mode:screen;
-      opacity:.45;
-    }
-    .scene::after{
-      content:"";
-      position:absolute;inset:0;z-index:2;pointer-events:none;
-      box-shadow:inset 0 0 160px rgba(0,0,0,.72);
-    }
-    .panel{
-      width:min(690px,48vw);
-      margin-left:auto;
-      position:relative;
-      z-index:4;
-      padding:clamp(28px,4vw,58px);
-      border:1px solid var(--border);
-      background:
-        linear-gradient(180deg,rgba(8,14,34,.93),rgba(3,7,18,.91));
-      box-shadow:
-        0 24px 90px rgba(0,0,0,.42),
-        inset 0 0 38px rgba(92,117,255,.04);
-      backdrop-filter:blur(5px);
-    }
-    .panel::before,.panel::after{
-      content:"";
-      position:absolute;width:11px;height:11px;
-      border:2px solid var(--gold);opacity:.65
-    }
-    .panel::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
-    .panel::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
-    .eyebrow{
-      display:flex;align-items:center;justify-content:center;gap:12px;
-      color:var(--gold);letter-spacing:.18em;text-transform:uppercase;
-      font-size:clamp(11px,1vw,14px);margin-bottom:12px
-    }
-    .eyebrow::before,.eyebrow::after{
-      content:"";height:1px;width:42px;background:linear-gradient(90deg,transparent,var(--gold))
-    }
-    .eyebrow::after{transform:scaleX(-1)}
-    h1{
-      margin:0;text-align:center;color:var(--gold);
-      font-size:clamp(34px,5vw,74px);line-height:.95;letter-spacing:.02em;
-      text-shadow:0 0 7px rgba(255,200,90,.7),0 0 22px rgba(255,157,61,.25);
-      animation:titleGlow 4.5s ease-in-out infinite;
-    }
-    .date{
-      margin:14px 0 28px;text-align:center;color:#fff3d8;
-      font-size:clamp(13px,1.25vw,18px);letter-spacing:.08em
-    }
-    .date strong{color:var(--gold)}
-    .dots{display:inline-block;width:3ch;text-align:left;color:var(--gold)}
-    .timer{
-      display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;
-      margin:0 auto 28px;
-    }
-    .unit{
-      min-width:0;text-align:center;padding:18px 8px 13px;
-      border:1px solid rgba(255,200,90,.42);
-      background:rgba(8,13,31,.74);
-      box-shadow:inset 0 0 0 2px rgba(255,200,90,.035);
-      position:relative;
-    }
-    .unit::before,.unit::after{
-      content:"";position:absolute;top:50%;width:4px;height:4px;background:var(--gold);
-      transform:translateY(-50%) rotate(45deg);opacity:.72
-    }
-    .unit::before{left:-3px}.unit::after{right:-3px}
-    .value{
-      display:block;color:var(--gold);font-weight:700;
-      font-size:clamp(28px,4vw,58px);line-height:1;
-      text-shadow:var(--shadow);font-variant-numeric:tabular-nums;
-    }
-    .label{
-      display:block;margin-top:9px;color:#e9d6af;
-      font-size:clamp(9px,.85vw,12px);letter-spacing:.13em;text-transform:uppercase
-    }
-    .message{
-      margin:0 auto;max-width:520px;text-align:center;color:#dbd6e3;
-      font-size:clamp(12px,1vw,15px);line-height:1.75
-    }
-    .message .heart{color:var(--gold);text-shadow:var(--shadow)}
-    .tiny{
-      margin-top:24px;text-align:center;color:#8f91a4;font-size:10px;letter-spacing:.12em
-    }
-    .fireflies{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
-    .firefly{
-      position:absolute;width:4px;height:4px;background:var(--gold);
-      box-shadow:0 0 6px 2px rgba(255,185,67,.72),0 0 16px 4px rgba(255,148,42,.24);
-      animation:blink var(--blink,3s) ease-in-out infinite, drift var(--drift,14s) ease-in-out infinite alternate;
-      opacity:.1;
-    }
-    .book-glow{
-      position:absolute;left:15%;bottom:8%;width:30vw;height:18vw;z-index:1;
-      background:radial-gradient(ellipse,rgba(255,155,54,.12),transparent 68%);
-      filter:blur(12px);pointer-events:none;animation:warmth 5s ease-in-out infinite;
-    }
-    @keyframes blink{0%,100%{opacity:.08;transform:scale(.65)}45%{opacity:.95;transform:scale(1.25)}62%{opacity:.32}}
-    @keyframes drift{
-      0%{translate:0 0}
-      25%{translate:var(--x1,22px) var(--y1,-15px)}
-      55%{translate:var(--x2,-18px) var(--y2,-40px)}
-      100%{translate:var(--x3,36px) var(--y3,-68px)}
-    }
-    @keyframes titleGlow{0%,100%{filter:brightness(.95)}50%{filter:brightness(1.12)}}
-    @keyframes warmth{0%,100%{opacity:.6}50%{opacity:1}}
-    @media (max-width:900px){
-      .scene{
-        display:flex;align-items:flex-end;
-        background-position:34% center;
-        padding:0;
-      }
-      .scene::after{box-shadow:inset 0 0 95px rgba(0,0,0,.62)}
-      .panel{
-        width:100%;margin:0;padding:26px 18px 30px;
-        background:linear-gradient(180deg,rgba(4,8,20,.68),rgba(4,8,20,.97) 24%);
-        border-left:0;border-right:0;border-bottom:0;
-      }
-      .eyebrow{margin-top:0}
-      h1{font-size:clamp(30px,10vw,48px)}
-      .timer{gap:7px;margin-bottom:20px}
-      .unit{padding:14px 4px 11px}
-      .value{font-size:clamp(25px,9vw,42px)}
-      .label{font-size:8px;letter-spacing:.04em}
-      .book-glow{display:none}
-    }
-    @media (max-width:480px){
-      .scene{background-position:29% center}
-      .panel{padding-bottom:max(26px,env(safe-area-inset-bottom))}
-      .date{margin-bottom:20px}
-      .message{font-size:11px;line-height:1.65}
-      .timer{gap:5px}
-      .unit{padding-inline:2px}
-      .value{font-size:clamp(24px,10vw,38px)}
-    }
-    @media (prefers-reduced-motion:reduce){
-      *,*::before,*::after{animation:none!important;scroll-behavior:auto!important}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080a18">
+<meta name="description" content="Uma espera interativa até sexta.">
+<title>Até sexta ♡</title>
+<style>
+:root{
+  --bg:#080a18;--bg2:#10142a;--card:#141931;--card2:#1a2140;
+  --text:#fff8f3;--muted:#aaa7ba;--pink:#ff8fb4;--pink2:#ffc1d4;
+  --gold:#ffc86b;--green:#8fe0bb;--line:rgba(255,255,255,.09);
+  --shadow:0 24px 70px rgba(0,0,0,.28)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 12% 0,rgba(105,83,190,.24),transparent 28%),
+    radial-gradient(circle at 92% 12%,rgba(255,143,180,.11),transparent 25%),
+    linear-gradient(180deg,#080a18,#090b18 50%,#070815);
+  overflow-x:hidden
+}
+button{font:inherit}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:-3;opacity:.28;background-image:
+  radial-gradient(#fff 1px,transparent 1px),
+  radial-gradient(var(--gold) 1px,transparent 1px);
+  background-size:88px 88px,137px 137px;background-position:0 0,36px 48px;animation:sky 45s linear infinite}
+@keyframes sky{to{transform:translateY(88px)}}
+.app{min-height:100vh}
+.topbar{
+  position:sticky;top:0;z-index:30;
+  background:rgba(8,10,24,.78);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line)
+}
+.nav{width:min(1160px,calc(100% - 24px));margin:auto;min-height:68px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.03em;white-space:nowrap}
+.brand i{font-style:normal;color:var(--pink)}
+.menu-toggle{display:none;margin-left:auto;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff;border-radius:12px;padding:9px 12px}
+.tabs{display:flex;align-items:center;gap:5px;margin-left:auto;overflow:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  border:0;background:transparent;color:var(--muted);padding:10px 11px;border-radius:12px;
+  cursor:pointer;white-space:nowrap;font-weight:700;font-size:13px;transition:.18s
+}
+.tab:hover,.tab.active{background:rgba(255,255,255,.065);color:#fff}
+.tab.done::after{content:" ✓";color:var(--green)}
+.view{display:none;min-height:calc(100vh - 68px)}
+.view.active{display:block;animation:enter .25s ease}
+@keyframes enter{from{opacity:0;transform:translateY(8px)}}
+.wrap{width:min(1060px,calc(100% - 28px));margin:auto}
+.hero{min-height:calc(100svh - 68px);display:grid;place-items:center;text-align:center;padding:54px 0}
+.moon{font-size:68px;animation:float 4.8s ease-in-out infinite;filter:drop-shadow(0 0 28px rgba(255,200,107,.25))}
+@keyframes float{50%{transform:translateY(-8px)}}
+.kicker{color:var(--gold);font-weight:900;letter-spacing:.2em;text-transform:uppercase;font-size:11px;margin:14px 0}
+h1{font-size:clamp(52px,10vw,108px);letter-spacing:-.065em;line-height:.9;margin:0}
+.lead{max-width:680px;margin:20px auto 0;color:var(--muted);line-height:1.7;font-size:clamp(16px,2.4vw,20px)}
+.timer{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;width:min(760px,100%);margin:32px auto 22px}
+.time{padding:20px 8px;background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.time b{display:block;color:var(--gold);font-size:clamp(34px,6vw,64px);line-height:1;font-variant-numeric:tabular-nums}
+.time span{display:block;margin-top:8px;color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.hero-actions,.row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.btn{
+  border:0;border-radius:999px;padding:13px 18px;background:var(--pink);color:#250a15;
+  font-weight:900;cursor:pointer;box-shadow:0 14px 30px rgba(255,143,180,.2);transition:.18s
+}
+.btn:hover{transform:translateY(-2px)}
+.btn.alt{background:rgba(255,255,255,.06);color:#fff;border:1px solid var(--line);box-shadow:none}
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:34px}
+.launch{
+  text-align:left;border:1px solid var(--line);background:linear-gradient(180deg,rgba(26,33,64,.88),rgba(17,21,43,.88));
+  color:#fff;border-radius:22px;padding:18px;cursor:pointer;transition:.2s;min-height:125px
+}
+.launch:hover{transform:translateY(-3px);border-color:rgba(255,143,180,.32)}
+.launch .icon{font-size:26px}.launch b{display:block;margin:12px 0 5px}.launch span{color:var(--muted);font-size:13px;line-height:1.45}
+.page{padding:58px 0 90px}
+.head{text-align:center;max-width:700px;margin:0 auto 30px}
+.head small{color:var(--pink2);font-weight:900;letter-spacing:.17em;text-transform:uppercase}
+.head h2{font-size:clamp(34px,5vw,58px);letter-spacing:-.045em;margin:8px 0 10px}
+.head p{color:var(--muted);line-height:1.7;margin:0}
+.card{background:linear-gradient(180deg,rgba(22,27,54,.96),rgba(13,16,35,.96));border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow)}
+.game{padding:24px}
+.progressbar{height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;margin:16px 0}
+.progressbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--gold));transition:.25s width}
+.status{text-align:center;color:var(--muted);margin-top:14px;min-height:22px}
+.heartfield{height:390px;position:relative;overflow:hidden;border-radius:20px;border:1px dashed var(--line);background:
+  radial-gradient(circle at 25% 22%,rgba(255,143,180,.08),transparent 30%),rgba(0,0,0,.11)}
+.heart{position:absolute;border:0;background:transparent;color:var(--pink);font-size:32px;cursor:pointer;filter:drop-shadow(0 0 10px rgba(255,143,180,.35));animation:bob 2.8s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-7px) rotate(5deg)}}
+.memory{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;max-width:640px;margin:auto}
+.mem{aspect-ratio:1;border:1px solid var(--line);border-radius:18px;background:#10142d;color:transparent;font-size:clamp(30px,5vw,48px);cursor:pointer;transition:.18s}
+.mem.open,.mem.done{color:#fff;background:#22284d;transform:translateY(-2px)}
+.mem.done{outline:1px solid rgba(143,224,187,.45)}
+.quiz-card{max-width:720px;margin:auto;padding:26px}
+.quiz-progress{color:var(--gold);font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.quiz-q{font-size:clamp(24px,4vw,36px);margin:12px 0 20px;letter-spacing:-.03em}
+.quiz-options{display:grid;gap:10px}
+.option{padding:16px 18px;text-align:left;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.035);color:#fff;cursor:pointer}
+.option:hover{background:rgba(255,143,180,.08);border-color:rgba(255,143,180,.34)}
+.result{display:none;text-align:center}.result.show{display:block}
+.result .big{font-size:64px}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.choice{padding:20px;text-align:left;border-radius:19px;border:1px solid var(--line);background:rgba(255,255,255,.025);color:#fff;cursor:pointer;transition:.18s}
+.choice:hover,.choice.on{transform:translateY(-2px);background:rgba(255,143,180,.08);border-color:rgba(255,143,180,.4)}
+.choice b{display:block;margin-bottom:5px}.choice span{color:var(--muted);font-size:13px;line-height:1.45}
+.ticket{display:none;margin-top:20px;padding:20px;border:1px dashed rgba(255,200,107,.4);border-radius:18px;background:rgba(255,200,107,.05);line-height:1.7}
+.ticket.show{display:block}
+.notes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.note{padding:23px;min-height:180px;cursor:pointer;position:relative;overflow:hidden}
+.note .seal{font-size:32px}.note h3{margin:12px 0 6px}.note p{color:var(--muted);line-height:1.6;margin:0}
+.note .hidden{filter:blur(7px);transition:.3s}.note.open .hidden{filter:none}.note.open{border-color:rgba(255,200,107,.28)}
+.vault{max-width:760px;margin:auto;text-align:center;padding:32px}
+.lock{font-size:58px}.vault-box{margin-top:20px;padding:20px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.03);line-height:1.7}
+.keyline{margin-top:16px;color:var(--muted);font-size:13px}
+.keyline b{color:var(--green)}
+.panic{position:fixed;right:16px;bottom:16px;z-index:40}
+.rain{position:fixed;inset:0;pointer-events:none;z-index:99;overflow:hidden}
+.drop{position:absolute;top:-36px;font-size:23px;animation:fall 3.2s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg);opacity:.08}}
+.modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(2,3,10,.78);z-index:60;padding:18px}
+.modal.show{display:grid}.modal .card{width:min(540px,100%);padding:28px;text-align:center}
+.modal h3{font-size:30px;margin:8px 0}.modal p{color:var(--muted);line-height:1.7}
+.score{display:inline-flex;align-items:center;gap:8px;margin-left:6px;color:var(--gold);font-size:12px;font-weight:900}
+@media(max-width:900px){
+  .menu-toggle{display:block}.tabs{
+    display:none;position:absolute;left:12px;right:12px;top:62px;margin:0;padding:10px;
+    background:rgba(12,15,32,.98);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);flex-direction:column;align-items:stretch
+  }
+  .tabs.open{display:flex}.tab{text-align:left}
+}
+@media(max-width:740px){
+  .home-grid,.choices,.notes{grid-template-columns:1fr}
+  .timer{gap:5px}.time{padding:15px 3px;border-radius:15px}.time span{font-size:8px;letter-spacing:.04em}
+  .page{padding-top:40px}.game{padding:16px}.heartfield{height:330px}.memory{gap:6px}.mem{border-radius:13px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+</style>
 </head>
 <body>
-  <main class="scene">
-    <div class="book-glow" aria-hidden="true"></div>
-    <div class="fireflies" id="fireflies" aria-hidden="true"></div>
+<div class="stars"></div><div class="rain" id="rain"></div>
+<div class="app">
+<header class="topbar"><nav class="nav">
+  <div class="brand">Até sexta <i>♡</i><span class="score" id="score">0/5</span></div>
+  <button class="menu-toggle" id="menuToggle">Menu</button>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-view="home">Início</button>
+    <button class="tab" data-view="hearts">Corações</button>
+    <button class="tab" data-view="memory">Memória</button>
+    <button class="tab" data-view="quiz">Quiz</button>
+    <button class="tab" data-view="date">Encontro</button>
+    <button class="tab" data-view="notes">Bilhetes</button>
+    <button class="tab" data-view="vault">Cofre</button>
+  </div>
+</nav></header>
 
-    <section class="panel" aria-label="Contagem regressiva">
-      <div class="eyebrow">uma espera bonita</div>
-      <h1>Até sexta</h1>
-      <p class="date">09.10.2026 · <strong>18:00</strong> <span class="dots" id="dots">.</span></p>
+<section class="view active" id="home">
+  <div class="hero"><div class="wrap">
+    <div class="moon">☾</div><div class="kicker">contagem regressiva para nós dois</div>
+    <h1>Até sexta. ♡</h1>
+    <p class="lead">A espera virou um pequeno mundo com jogos, bilhetes e surpresas. Cada coisa que você completa deixa a sexta um pouquinho mais perto.</p>
+    <div class="timer">
+      <div class="time"><b id="d">00</b><span>dias</span></div>
+      <div class="time"><b id="h">00</b><span>horas</span></div>
+      <div class="time"><b id="m">00</b><span>minutos</span></div>
+      <div class="time"><b id="s">00</b><span>segundos</span></div>
+    </div>
+    <div class="hero-actions"><button class="btn" data-go="hearts">Começar pelos jogos</button><button class="btn alt" onclick="saudade()">Apertei o botão da saudade</button></div>
+    <div class="home-grid">
+      <button class="launch" data-go="hearts"><div class="icon">♡</div><b>Caça aos corações</b><span>Encontre os 7 corações perdidos.</span></button>
+      <button class="launch" data-go="memory"><div class="icon">✦</div><b>Jogo da memória</b><span>Faça os 8 pares antes de esquecer de mim.</span></button>
+      <button class="launch" data-go="quiz"><div class="icon">?</div><b>Quiz de nós</b><span>Um teste nada científico sobre a nossa espera.</span></button>
+      <button class="launch" data-go="date"><div class="icon">☕</div><b>Monte nosso encontro</b><span>Crie o ingresso oficial da sexta.</span></button>
+      <button class="launch" data-go="notes"><div class="icon">✉</div><b>Bilhetes de saudade</b><span>Abra quando quiser um lembrete meu.</span></button>
+      <button class="launch" data-go="vault"><div class="icon">⌁</div><b>Cofre de sexta</b><span>Ganhe a chave nos jogos. O relógio decide quando abrir.</span></button>
+    </div>
+  </div></div>
+</section>
 
-      <div class="timer" role="timer" aria-live="polite">
-        <div class="unit"><span class="value" id="days">00</span><span class="label">dias</span></div>
-        <div class="unit"><span class="value" id="hours">00</span><span class="label">horas</span></div>
-        <div class="unit"><span class="value" id="minutes">00</span><span class="label">minutos</span></div>
-        <div class="unit"><span class="value" id="seconds">00</span><span class="label">segundos</span></div>
-      </div>
+<section class="view" id="hearts"><div class="page"><div class="wrap">
+  <div class="head"><small>Jogo 1</small><h2>Caça aos corações</h2><p>Sete corações estão escondidos no campo. Ache todos.</p></div>
+  <div class="card game"><b><span id="hc">0</span>/7 encontrados</b><div class="progressbar"><i id="hp"></i></div><div class="heartfield" id="hf"></div><div class="status" id="hs">Procure com calma 👀</div></div>
+</div></div></section>
 
-      <p class="message" id="message">
-        Enquanto esse dia não chega, ela segue entre páginas e histórias…
-        e eu contando cada pedacinho do tempo até poder vê-la de novo.
-        <span class="heart">♡</span>
-      </p>
-      <div class="tiny">o livro não se apaixona. eu sim.</div>
-    </section>
-  </main>
+<section class="view" id="memory"><div class="page"><div class="wrap">
+  <div class="head"><small>Jogo 2</small><h2>Memória</h2><p>Encontre todos os pares. Sem roubar olhando o código.</p></div>
+  <div class="card game"><div class="memory" id="memoryGrid"></div><div class="status" id="ms">Pares encontrados: 0/8</div></div>
+</div></div></section>
 
-  <script>
-    const TARGET = new Date('2026-10-09T18:00:00-03:00').getTime();
-    const $ = id => document.getElementById(id);
-    const pad = n => String(Math.max(0,n)).padStart(2,'0');
+<section class="view" id="quiz"><div class="page"><div class="wrap">
+  <div class="head"><small>Jogo 3</small><h2>Quiz de nós</h2><p>Não existe resposta errada. Existe apenas material para eu te provocar depois.</p></div>
+  <div class="card quiz-card">
+    <div id="quizPlay"><div class="quiz-progress" id="qp">Pergunta 1 de 5</div><div class="quiz-q" id="qq"></div><div class="quiz-options" id="qo"></div></div>
+    <div class="result" id="qr"><div class="big">💗</div><h2>Resultado científico</h2><p id="qrt" class="lead" style="font-size:16px"></p><button class="btn" onclick="restartQuiz()">Jogar de novo</button></div>
+  </div>
+</div></div></section>
 
-    function updateCountdown(){
-      const diff = Math.max(0, TARGET - Date.now());
-      const total = Math.floor(diff / 1000);
-      const days = Math.floor(total / 86400);
-      const hours = Math.floor((total % 86400) / 3600);
-      const minutes = Math.floor((total % 3600) / 60);
-      const seconds = total % 60;
+<section class="view" id="date"><div class="page"><div class="wrap">
+  <div class="head"><small>Jogo 4</small><h2>Monte nosso encontro</h2><p>Escolha uma opção em cada parte e gere seu ingresso para sexta.</p></div>
+  <div class="card game">
+    <h3>1. Começo da noite</h3><div class="choices" data-g="start">
+      <button class="choice" data-v="Comida boa"><b>🍝 Comida boa</b><span>Porque esperar dá fome.</span></button>
+      <button class="choice" data-v="Café e conversa"><b>☕ Café e conversa</b><span>Sem pressa e sem roteiro.</span></button>
+      <button class="choice" data-v="Passeio tranquilo"><b>🌙 Passeio</b><span>Só aproveitar a noite.</span></button>
+    </div>
+    <h3 style="margin-top:26px">2. Clima</h3><div class="choices" data-g="vibe">
+      <button class="choice" data-v="Romântico"><b>💌 Romântico</b><span>A página já entregou a intenção.</span></button>
+      <button class="choice" data-v="Engraçado"><b>😂 Engraçado</b><span>Rir até esquecer a hora.</span></button>
+      <button class="choice" data-v="Surpresa"><b>✨ Surpresa</b><span>Sem spoilers.</span></button>
+    </div>
+    <h3 style="margin-top:26px">3. Final perfeito</h3><div class="choices" data-g="end">
+      <button class="choice" data-v="Filme juntinhos"><b>🎬 Filme</b><span>Com disputa pra escolher.</span></button>
+      <button class="choice" data-v="Sobremesa"><b>🍰 Sobremesa</b><span>Porque sim.</span></button>
+      <button class="choice" data-v="Mais tempo juntos"><b>♡ Mais tempo</b><span>A opção mais suspeita de ser correta.</span></button>
+    </div>
+    <div class="ticket" id="ticket"></div>
+  </div>
+</div></div></section>
 
-      $('days').textContent = pad(days);
-      $('hours').textContent = pad(hours);
-      $('minutes').textContent = pad(minutes);
-      $('seconds').textContent = pad(seconds);
+<section class="view" id="notes"><div class="page"><div class="wrap">
+  <div class="head"><small>Jogo 5</small><h2>Bilhetes de saudade</h2><p>Abra todos. Ou finja que vai abrir um por dia.</p></div>
+  <div class="notes">
+    <article class="card note"><div class="seal">💌</div><h3>Para quando bater saudade</h3><p class="hidden">Falta menos do que faltava quando você abriu isso. Eu também tô contando.</p></article>
+    <article class="card note"><div class="seal">🌙</div><h3>Para antes de dormir</h3><p class="hidden">Boa noite. Se desse para pular alguns dias no calendário, eu já teria feito.</p></article>
+    <article class="card note"><div class="seal">✨</div><h3>Para quando sorrir</h3><p class="hidden">Esse site é só uma forma exagerada — e muito a minha cara — de dizer que tô com saudade.</p></article>
+    <article class="card note"><div class="seal">☕</div><h3>Para uma pausa</h3><p class="hidden">Pausa rápida: respira, bebe alguma coisa e lembra que sexta continua vindo.</p></article>
+    <article class="card note"><div class="seal">📖</div><h3>Para quando estiver lendo</h3><p class="hidden">Pode continuar lendo. O livro não se apaixona, mas eu sim.</p></article>
+    <article class="card note"><div class="seal">♡</div><h3>O mais simples</h3><p class="hidden">Eu só quero te ver. Pronto. Esse era o bilhete inteiro.</p></article>
+  </div>
+</div></div></section>
 
-      if (diff <= 0) {
-        $('message').innerHTML = 'Chegou a hora. <span class="heart">♡</span><br>Finalmente, sem cronômetro entre a gente.';
-        document.title = 'Chegou a hora ♡';
-      }
-    }
+<section class="view" id="vault"><div class="page"><div class="wrap">
+  <div class="head"><small>Final</small><h2>Cofre de sexta</h2><p>Complete os jogos para conseguir a chave. Mesmo com a chave, o cofre só abre sexta às 18h.</p></div>
+  <div class="card vault">
+    <div class="lock" id="lock">🔒</div><h2 id="vt">Ainda não.</h2><p id="vp" class="lead" style="font-size:16px">O relógio e os jogos estão cuidando disso.</p>
+    <div class="vault-box" id="vb">🔐 Complete os 5 jogos para formar a chave.</div>
+    <div class="keyline">Chave: <b id="keyProgress">0/5 partes</b></div>
+  </div>
+</div></div></section>
+</div>
 
-    let dotsStep = 1;
-    setInterval(() => {
-      $('dots').textContent = '.'.repeat(dotsStep);
-      dotsStep = dotsStep === 3 ? 1 : dotsStep + 1;
-    }, 650);
+<div class="panic"><button class="btn" onclick="saudade()">♡ botão da saudade</button></div>
 
-    function makeFireflies(){
-      const layer = $('fireflies');
-      const count = matchMedia('(max-width: 700px)').matches ? 16 : 30;
-      for(let i=0;i<count;i++){
-        const f = document.createElement('i');
-        f.className = 'firefly';
-        f.style.left = (Math.random()*100)+'%';
-        f.style.top = (8 + Math.random()*84)+'%';
-        f.style.setProperty('--blink',(1.8 + Math.random()*4.2)+'s');
-        f.style.setProperty('--drift',(8 + Math.random()*14)+'s');
-        f.style.setProperty('--x1',(-35 + Math.random()*70)+'px');
-        f.style.setProperty('--y1',(-30 + Math.random()*50)+'px');
-        f.style.setProperty('--x2',(-50 + Math.random()*100)+'px');
-        f.style.setProperty('--y2',(-60 + Math.random()*80)+'px');
-        f.style.setProperty('--x3',(-60 + Math.random()*120)+'px');
-        f.style.setProperty('--y3',(-80 + Math.random()*110)+'px');
-        f.style.animationDelay = (-Math.random()*10)+'s';
-        layer.appendChild(f);
-      }
-    }
+<div class="modal" id="modal"><div class="card"><div style="font-size:48px">💖</div><h3 id="mt">Saudade detectada</h3><p id="mp"></p><button class="btn" onclick="closeModal()">Fechar</button></div></div>
 
-    makeFireflies();
-    updateCountdown();
-    setInterval(updateCountdown,1000);
-  </script>
+<script>
+const TARGET=new Date('2026-10-09T18:00:00-03:00').getTime();
+const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)],pad=n=>String(Math.max(0,n)).padStart(2,'0');
+const state=JSON.parse(localStorage.getItem('amorProgress')||'{"hearts":false,"memory":false,"quiz":false,"date":false,"notes":false}');
+function save(){localStorage.setItem('amorProgress',JSON.stringify(state));refreshProgress()}
+function refreshProgress(){
+  const map={hearts:'Corações',memory:'Memória',quiz:'Quiz',date:'Encontro',notes:'Bilhetes'};
+  let done=0;Object.keys(map).forEach(k=>{if(state[k])done++;const tab=qa('.tab').find(x=>x.textContent.includes(map[k]));if(tab)tab.classList.toggle('done',!!state[k])});
+  q('#score').textContent=done+'/5';q('#keyProgress').textContent=done+'/5 partes';updateVault()
+}
+function tick(){
+  const x=Math.max(0,TARGET-Date.now()),t=Math.floor(x/1000);
+  q('#d').textContent=pad(Math.floor(t/86400));q('#h').textContent=pad(Math.floor(t%86400/3600));q('#m').textContent=pad(Math.floor(t%3600/60));q('#s').textContent=pad(t%60);updateVault()
+}
+setInterval(tick,1000);tick();
+function show(id){
+  qa('.view').forEach(v=>v.classList.toggle('active',v.id===id));
+  qa('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===id));
+  q('#tabs').classList.remove('open');scrollTo({top:0,behavior:'smooth'})
+}
+qa('[data-view]').forEach(b=>b.onclick=()=>show(b.dataset.view));
+qa('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+q('#menuToggle').onclick=()=>q('#tabs').classList.toggle('open');
+
+function modal(t,p){q('#mt').textContent=t;q('#mp').textContent=p;q('#modal').classList.add('show')}
+function closeModal(){q('#modal').classList.remove('show')}
+q('#modal').onclick=e=>{if(e.target.id==='modal')closeModal()}
+function saudade(){
+  for(let i=0;i<28;i++){let e=document.createElement('span');e.className='drop';e.textContent=['♡','♥','💗','✨'][Math.floor(Math.random()*4)];e.style.left=Math.random()*100+'vw';e.style.animationDelay=Math.random()*.7+'s';q('#rain').appendChild(e);setTimeout(()=>e.remove(),4000)}
+  modal('Saudade detectada.','Diagnóstico: falta pouco. Recomendação: sobreviver até sexta, 18h. ♡')
+}
+
+let found=0;
+[[8,14],[72,12],[45,28],[18,62],[82,58],[55,73],[34,48]].forEach((p,i)=>{
+  const b=document.createElement('button');b.className='heart';b.textContent=i%2?'♥':'♡';b.style.left=p[0]+'%';b.style.top=p[1]+'%';b.style.animationDelay=(i*.3)+'s';
+  b.onclick=()=>{if(b.disabled)return;b.disabled=true;b.style.opacity='.12';found++;q('#hc').textContent=found;q('#hp').style.width=found/7*100+'%';q('#hs').textContent=found<7?'Ainda faltam '+(7-found)+'.':'Você achou todos. ✨';if(found===7){state.hearts=true;save();setTimeout(()=>modal('Bilhete desbloqueado','Eu poderia ter colocado 100 corações aqui e ainda seria pouco perto da vontade de te ver.'),220)}};
+  q('#hf').appendChild(b)
+});
+
+const icons=['🌙','📖','✨','☕','🌹','🐈','💌','⭐'],deck=[...icons,...icons].sort(()=>Math.random()-.5);let open=[],pairs=0,busy=false;
+deck.forEach(ic=>{const b=document.createElement('button');b.className='mem';b.textContent=ic;b.dataset.i=ic;b.onclick=()=>{
+  if(busy||b.classList.contains('done')||b.classList.contains('open'))return;b.classList.add('open');open.push(b);
+  if(open.length===2){busy=true;const[a,c]=open;if(a.dataset.i===c.dataset.i){a.classList.add('done');c.classList.add('done');pairs++;open=[];busy=false;q('#ms').textContent='Pares encontrados: '+pairs+'/8';if(pairs===8){state.memory=true;save();setTimeout(()=>modal('Memória perfeita','Agora falta guardar mais uma lembrança: sexta à noite. ♡'),250)}}else setTimeout(()=>{a.classList.remove('open');c.classList.remove('open');open=[];busy=false},650)}
+};q('#memoryGrid').appendChild(b)});
+
+const quiz=[
+  {q:'Quando a saudade bate, o que resolve melhor?',o:['Uma mensagem inesperada','Uma ligação longa','Um abraço — então nada resolve até sexta']},
+  {q:'Qual é o maior inimigo dessa semana?',o:['O relógio','A distância','O calendário inteiro']},
+  {q:'Se a sexta fosse um filme, qual seria o gênero?',o:['Romance','Comédia romântica','Suspense: será que 18h chega?']},
+  {q:'Qual deveria ser a duração ideal do encontro?',o:['Algumas horas','A noite toda','Tecnicamente: sem horário pra acabar']},
+  {q:'Última pergunta: valeu abrir esse site?',o:['Sim','Muito','Vou fingir que não achei fofo']}
+];
+let qi=0,answers=[];
+function renderQuiz(){
+  if(qi>=quiz.length){q('#quizPlay').style.display='none';q('#qr').classList.add('show');q('#qrt').textContent='Conclusão: você está oficialmente autorizada a cobrar seu encontro de sexta. E eu estou oficialmente com saudade.';state.quiz=true;save();return}
+  q('#qp').textContent='Pergunta '+(qi+1)+' de '+quiz.length;q('#qq').textContent=quiz[qi].q;q('#qo').innerHTML='';
+  quiz[qi].o.forEach(txt=>{const b=document.createElement('button');b.className='option';b.textContent=txt;b.onclick=()=>{answers.push(txt);qi++;renderQuiz()};q('#qo').appendChild(b)})
+}
+function restartQuiz(){qi=0;answers=[];q('#quizPlay').style.display='block';q('#qr').classList.remove('show');renderQuiz()}
+renderQuiz();
+
+const pick={start:null,vibe:null,end:null};
+qa('.choices').forEach(g=>g.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{
+  g.querySelectorAll('.choice').forEach(x=>x.classList.remove('on'));b.classList.add('on');pick[g.dataset.g]=b.dataset.v;
+  if(Object.values(pick).every(Boolean)){q('#ticket').classList.add('show');q('#ticket').innerHTML='<b>🎟️ Ingresso para sexta</b><br><br>'+pick.start+' · '+pick.vibe+' · '+pick.end+'<br><br><span style="color:var(--muted)">Validade: 09/10/2026, a partir das 18h. Companhia obrigatória: eu. ♡</span>';state.date=true;save()}
+}));
+
+let openedNotes=0;
+qa('.note').forEach(n=>n.onclick=()=>{if(!n.classList.contains('open')){n.classList.add('open');openedNotes++;if(openedNotes===qa('.note').length){state.notes=true;save();modal('Todos os bilhetes abertos','Eu sabia que você não ia conseguir abrir só um. ♡')}}});
+
+function updateVault(){
+  const done=Object.values(state).filter(Boolean).length, timeReady=Date.now()>=TARGET;
+  if(done<5){q('#lock').textContent='🔒';q('#vt').textContent='A chave ainda não está completa.';q('#vp').textContent='Complete os 5 jogos.';q('#vb').textContent='🔐 Faltam '+(5-done)+' parte(s) da chave.'}
+  else if(!timeReady){q('#lock').textContent='🗝️';q('#vt').textContent='Você conseguiu a chave.';q('#vp').textContent='Mas o cofre ainda está esperando sexta, às 18h.';q('#vb').textContent='⏳ A chave funciona. O tempo ainda não.'}
+  else{q('#lock').textContent='🔓';q('#vt').textContent='Chegou a hora. ♡';q('#vp').textContent='Agora a melhor parte acontece fora da tela.';q('#vb').innerHTML='<b>Fecha o site e vem me ver.</b> 💖'}
+}
+refreshProgress();
+</script>
 </body>
 </html>
