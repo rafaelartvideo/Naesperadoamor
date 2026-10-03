@@ -450,7 +450,50 @@ svg{display:block}
 }
 
 /* mobile */
-@media(max-width:980px){
+
+.music-dock{
+  position:fixed;left:16px;bottom:58px;z-index:44;width:300px;
+  pointer-events:auto
+}
+.music-chip{
+  width:100%;display:flex;align-items:center;gap:10px;
+  border:1px solid var(--line2);background:linear-gradient(180deg,#151b36,#0d1125);
+  color:#fff;padding:10px 12px;cursor:pointer;
+  box-shadow:4px 4px 0 #04050c;
+  clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px)
+}
+.music-chip .music-copy{min-width:0;text-align:left;flex:1}
+.music-chip strong{
+  display:block;font-family:"Press Start 2P";font-size:7px;line-height:1.5;color:var(--gold);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.music-chip span{display:block;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.music-led{width:6px;height:6px;background:#3d435f;box-shadow:0 0 0 transparent}
+.music-dock.open .music-led{background:var(--mint);box-shadow:0 0 10px rgba(143,225,187,.65)}
+.music-panel{
+  display:none;margin-bottom:8px;background:#0c1022;border:1px solid var(--line);
+  box-shadow:6px 6px 0 #04050c;padding:10px
+}
+.music-dock.open .music-panel{display:block;animation:panelPop .22s steps(4,end)}
+@keyframes panelPop{from{opacity:0;transform:translateY(7px)}}
+.music-video{width:100%;height:200px;background:#05060c;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.music-video iframe{width:100%!important;height:100%!important;border:0}
+.music-meta{padding:10px 2px 4px}
+.music-meta strong{display:block;font-family:"Press Start 2P";font-size:8px;line-height:1.5;color:#fff}
+.music-meta span{font-size:13px;color:var(--muted)}
+.music-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
+.music-actions button{
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  min-height:38px;border:1px solid var(--line);background:#141a35;color:#fff;cursor:pointer;
+  font-family:"Press Start 2P";font-size:6px
+}
+.music-actions button:hover{border-color:rgba(255,201,106,.35);color:var(--gold)}
+.music-actions .off{color:#7b7f94}
+.music-actions .icon{width:15px;height:15px}
+.music-note{
+  padding-top:8px;color:#6f748d;font-size:12px;line-height:1.35;text-align:center
+}
+\n@media(max-width:980px){
   .brand-sub{display:none}
   .tabs-shell{margin-left:auto}
   .tabs{max-width:72vw;overflow:auto;scrollbar-width:none}
@@ -531,7 +574,7 @@ svg{display:block}
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5h6a3 3 0 0 1 3 3v11a3 3 0 0 0-3-3H4Z"/><path d="M20 5h-6a3 3 0 0 0-3 3v11a3 3 0 0 1 3-3h6Z"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></symbol>
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
-  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M4 6h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4Z"/><path d="M12 8v8"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M4 6h16v4a2 2 0 0 0 0 4v4H4v-4a2 2 0 0 0 0-4Z"/><path d="M12 8v8"/></symbol>\n  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></symbol>\n  <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>\n  <symbol id="i-next" viewBox="0 0 24 24"><path d="m5 6 8 6-8 6Z"/><path d="m13 6 8 6-8 6Z"/></symbol>\n  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4Z"/><path d="M16 9c1 1 1 5 0 6M19 7c2 2 2 8 0 10"/></symbol>
 </svg>
 
 <div class="stars"></div>
@@ -772,7 +815,28 @@ svg{display:block}
 </section>
 </div>
 
-<div class="panic">
+
+<div class="music-dock" id="musicDock">
+  <div class="music-panel" id="musicPanel" aria-hidden="true">
+    <div class="music-video"><div id="ytPlayer"></div></div>
+    <div class="music-meta">
+      <strong id="musicTitle">Te Esperando</strong>
+      <span id="musicStatus">TOQUE PARA OUVIR</span>
+    </div>
+    <div class="music-actions">
+      <button id="musicPlay" type="button" aria-label="Tocar música"><svg class="icon"><use href="#i-play"/></svg><span>TOCAR</span></button>
+      <button id="musicNext" type="button" aria-label="Próxima música"><svg class="icon"><use href="#i-next"/></svg><span>PRÓXIMA</span></button>
+      <button id="sfxToggle" type="button" aria-pressed="true"><svg class="icon"><use href="#i-volume"/></svg><span>SFX ON</span></button>
+    </div>
+    <div class="music-note">A música começa após um toque por causa das regras do navegador.</div>
+  </div>
+  <button class="music-chip" id="musicOpen" type="button" aria-label="Abrir música">
+    <svg class="icon" style="color:var(--gold)"><use href="#i-music"/></svg>
+    <div class="music-copy"><strong>TRILHA SONORA</strong><span>Te Esperando → ILHA</span></div>
+    <i class="music-led"></i>
+  </button>
+</div>
+\n<div class="panic">
   <button class="btn with-icon" onclick="saudade()"><svg class="icon"><use href="#i-heart"/></svg><span>SAUDADE</span></button>
 </div>
 <div class="mini-count" id="miniCount">--:--:--</div>
