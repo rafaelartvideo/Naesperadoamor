@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#050916" />
+  <meta name="description" content="Uma pequena contagem regressiva para sexta-feira." />
+  <title>Até sexta ♡</title>
+  <style>
+    :root{
+      --night:#050916;
+      --night-2:#081126;
+      --ink:#f7ecd7;
+      --muted:#b9b6c5;
+      --gold:#ffc85a;
+      --gold-2:#ff9f3d;
+      --lavender:#d7a7ff;
+      --panel:rgba(4,8,20,.88);
+      --border:rgba(255,200,90,.34);
+      --shadow:0 0 22px rgba(255,184,70,.25);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--night);color:var(--ink)}
+    body{
+      min-height:100svh;
+      overflow-x:hidden;
+      font-family:"Courier New",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+      image-rendering:pixelated;
+    }
+    .scene{
+      min-height:100svh;
+      position:relative;
+      isolation:isolate;
+      display:grid;
+      place-items:center;
+      padding:clamp(18px,3vw,42px);
+      background:
+        radial-gradient(circle at 22% 72%,rgba(255,163,61,.10),transparent 30%),
+        linear-gradient(90deg,rgba(4,7,17,.05) 0 38%,rgba(4,7,17,.62) 58%,rgba(4,7,17,.96) 100%),
+        url("./princess-reading.webp") center/cover no-repeat;
+    }
+    .scene::before{
+      content:"";
+      position:absolute;inset:0;z-index:-1;pointer-events:none;
+      background:
+        linear-gradient(to bottom,rgba(2,5,13,.06),rgba(2,5,13,.18)),
+        repeating-linear-gradient(to bottom,rgba(255,255,255,.012) 0 1px,transparent 1px 4px);
+      mix-blend-mode:screen;
+      opacity:.45;
+    }
+    .scene::after{
+      content:"";
+      position:absolute;inset:0;z-index:2;pointer-events:none;
+      box-shadow:inset 0 0 160px rgba(0,0,0,.72);
+    }
+    .panel{
+      width:min(690px,48vw);
+      margin-left:auto;
+      position:relative;
+      z-index:4;
+      padding:clamp(28px,4vw,58px);
+      border:1px solid var(--border);
+      background:
+        linear-gradient(180deg,rgba(8,14,34,.93),rgba(3,7,18,.91));
+      box-shadow:
+        0 24px 90px rgba(0,0,0,.42),
+        inset 0 0 38px rgba(92,117,255,.04);
+      backdrop-filter:blur(5px);
+    }
+    .panel::before,.panel::after{
+      content:"";
+      position:absolute;width:11px;height:11px;
+      border:2px solid var(--gold);opacity:.65
+    }
+    .panel::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+    .panel::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+    .eyebrow{
+      display:flex;align-items:center;justify-content:center;gap:12px;
+      color:var(--gold);letter-spacing:.18em;text-transform:uppercase;
+      font-size:clamp(11px,1vw,14px);margin-bottom:12px
+    }
+    .eyebrow::before,.eyebrow::after{
+      content:"";height:1px;width:42px;background:linear-gradient(90deg,transparent,var(--gold))
+    }
+    .eyebrow::after{transform:scaleX(-1)}
+    h1{
+      margin:0;text-align:center;color:var(--gold);
+      font-size:clamp(34px,5vw,74px);line-height:.95;letter-spacing:.02em;
+      text-shadow:0 0 7px rgba(255,200,90,.7),0 0 22px rgba(255,157,61,.25);
+      animation:titleGlow 4.5s ease-in-out infinite;
+    }
+    .date{
+      margin:14px 0 28px;text-align:center;color:#fff3d8;
+      font-size:clamp(13px,1.25vw,18px);letter-spacing:.08em
+    }
+    .date strong{color:var(--gold)}
+    .dots{display:inline-block;width:3ch;text-align:left;color:var(--gold)}
+    .timer{
+      display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;
+      margin:0 auto 28px;
+    }
+    .unit{
+      min-width:0;text-align:center;padding:18px 8px 13px;
+      border:1px solid rgba(255,200,90,.42);
+      background:rgba(8,13,31,.74);
+      box-shadow:inset 0 0 0 2px rgba(255,200,90,.035);
+      position:relative;
+    }
+    .unit::before,.unit::after{
+      content:"";position:absolute;top:50%;width:4px;height:4px;background:var(--gold);
+      transform:translateY(-50%) rotate(45deg);opacity:.72
+    }
+    .unit::before{left:-3px}.unit::after{right:-3px}
+    .value{
+      display:block;color:var(--gold);font-weight:700;
+      font-size:clamp(28px,4vw,58px);line-height:1;
+      text-shadow:var(--shadow);font-variant-numeric:tabular-nums;
+    }
+    .label{
+      display:block;margin-top:9px;color:#e9d6af;
+      font-size:clamp(9px,.85vw,12px);letter-spacing:.13em;text-transform:uppercase
+    }
+    .message{
+      margin:0 auto;max-width:520px;text-align:center;color:#dbd6e3;
+      font-size:clamp(12px,1vw,15px);line-height:1.75
+    }
+    .message .heart{color:var(--gold);text-shadow:var(--shadow)}
+    .tiny{
+      margin-top:24px;text-align:center;color:#8f91a4;font-size:10px;letter-spacing:.12em
+    }
+    .fireflies{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+    .firefly{
+      position:absolute;width:4px;height:4px;background:var(--gold);
+      box-shadow:0 0 6px 2px rgba(255,185,67,.72),0 0 16px 4px rgba(255,148,42,.24);
+      animation:blink var(--blink,3s) ease-in-out infinite, drift var(--drift,14s) ease-in-out infinite alternate;
+      opacity:.1;
+    }
+    .book-glow{
+      position:absolute;left:15%;bottom:8%;width:30vw;height:18vw;z-index:1;
+      background:radial-gradient(ellipse,rgba(255,155,54,.12),transparent 68%);
+      filter:blur(12px);pointer-events:none;animation:warmth 5s ease-in-out infinite;
+    }
+    @keyframes blink{0%,100%{opacity:.08;transform:scale(.65)}45%{opacity:.95;transform:scale(1.25)}62%{opacity:.32}}
+    @keyframes drift{
+      0%{translate:0 0}
+      25%{translate:var(--x1,22px) var(--y1,-15px)}
+      55%{translate:var(--x2,-18px) var(--y2,-40px)}
+      100%{translate:var(--x3,36px) var(--y3,-68px)}
+    }
+    @keyframes titleGlow{0%,100%{filter:brightness(.95)}50%{filter:brightness(1.12)}}
+    @keyframes warmth{0%,100%{opacity:.6}50%{opacity:1}}
+    @media (max-width:900px){
+      .scene{
+        display:flex;align-items:flex-end;
+        background-position:34% center;
+        padding:0;
+      }
+      .scene::after{box-shadow:inset 0 0 95px rgba(0,0,0,.62)}
+      .panel{
+        width:100%;margin:0;padding:26px 18px 30px;
+        background:linear-gradient(180deg,rgba(4,8,20,.68),rgba(4,8,20,.97) 24%);
+        border-left:0;border-right:0;border-bottom:0;
+      }
+      .eyebrow{margin-top:0}
+      h1{font-size:clamp(30px,10vw,48px)}
+      .timer{gap:7px;margin-bottom:20px}
+      .unit{padding:14px 4px 11px}
+      .value{font-size:clamp(25px,9vw,42px)}
+      .label{font-size:8px;letter-spacing:.04em}
+      .book-glow{display:none}
+    }
+    @media (max-width:480px){
+      .scene{background-position:29% center}
+      .panel{padding-bottom:max(26px,env(safe-area-inset-bottom))}
+      .date{margin-bottom:20px}
+      .message{font-size:11px;line-height:1.65}
+      .timer{gap:5px}
+      .unit{padding-inline:2px}
+      .value{font-size:clamp(24px,10vw,38px)}
+    }
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation:none!important;scroll-behavior:auto!important}
+    }
+  </style>
+</head>
+<body>
+  <main class="scene">
+    <div class="book-glow" aria-hidden="true"></div>
+    <div class="fireflies" id="fireflies" aria-hidden="true"></div>
+
+    <section class="panel" aria-label="Contagem regressiva">
+      <div class="eyebrow">uma espera bonita</div>
+      <h1>Até sexta</h1>
+      <p class="date">09.10.2026 · <strong>18:00</strong> <span class="dots" id="dots">.</span></p>
+
+      <div class="timer" role="timer" aria-live="polite">
+        <div class="unit"><span class="value" id="days">00</span><span class="label">dias</span></div>
+        <div class="unit"><span class="value" id="hours">00</span><span class="label">horas</span></div>
+        <div class="unit"><span class="value" id="minutes">00</span><span class="label">minutos</span></div>
+        <div class="unit"><span class="value" id="seconds">00</span><span class="label">segundos</span></div>
+      </div>
+
+      <p class="message" id="message">
+        Enquanto esse dia não chega, ela segue entre páginas e histórias…
+        e eu contando cada pedacinho do tempo até poder vê-la de novo.
+        <span class="heart">♡</span>
+      </p>
+      <div class="tiny">o livro não se apaixona. eu sim.</div>
+    </section>
+  </main>
+
+  <script>
+    const TARGET = new Date('2026-10-09T18:00:00-03:00').getTime();
+    const $ = id => document.getElementById(id);
+    const pad = n => String(Math.max(0,n)).padStart(2,'0');
+
+    function updateCountdown(){
+      const diff = Math.max(0, TARGET - Date.now());
+      const total = Math.floor(diff / 1000);
+      const days = Math.floor(total / 86400);
+      const hours = Math.floor((total % 86400) / 3600);
+      const minutes = Math.floor((total % 3600) / 60);
+      const seconds = total % 60;
+
+      $('days').textContent = pad(days);
+      $('hours').textContent = pad(hours);
+      $('minutes').textContent = pad(minutes);
+      $('seconds').textContent = pad(seconds);
+
+      if (diff <= 0) {
+        $('message').innerHTML = 'Chegou a hora. <span class="heart">♡</span><br>Finalmente, sem cronômetro entre a gente.';
+        document.title = 'Chegou a hora ♡';
+      }
+    }
+
+    let dotsStep = 1;
+    setInterval(() => {
+      $('dots').textContent = '.'.repeat(dotsStep);
+      dotsStep = dotsStep === 3 ? 1 : dotsStep + 1;
+    }, 650);
+
+    function makeFireflies(){
+      const layer = $('fireflies');
+      const count = matchMedia('(max-width: 700px)').matches ? 16 : 30;
+      for(let i=0;i<count;i++){
+        const f = document.createElement('i');
+        f.className = 'firefly';
+        f.style.left = (Math.random()*100)+'%';
+        f.style.top = (8 + Math.random()*84)+'%';
+        f.style.setProperty('--blink',(1.8 + Math.random()*4.2)+'s');
+        f.style.setProperty('--drift',(8 + Math.random()*14)+'s');
+        f.style.setProperty('--x1',(-35 + Math.random()*70)+'px');
+        f.style.setProperty('--y1',(-30 + Math.random()*50)+'px');
+        f.style.setProperty('--x2',(-50 + Math.random()*100)+'px');
+        f.style.setProperty('--y2',(-60 + Math.random()*80)+'px');
+        f.style.setProperty('--x3',(-60 + Math.random()*120)+'px');
+        f.style.setProperty('--y3',(-80 + Math.random()*110)+'px');
+        f.style.animationDelay = (-Math.random()*10)+'s';
+        layer.appendChild(f);
+      }
+    }
+
+    makeFireflies();
+    updateCountdown();
+    setInterval(updateCountdown,1000);
+  </script>
+</body>
+</html>
