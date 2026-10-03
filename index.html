@@ -324,9 +324,16 @@ svg{display:block}
   position:absolute;border:0;background:transparent;color:var(--pink);
   font-size:34px;cursor:pointer;
   filter:drop-shadow(0 0 10px rgba(255,141,181,.42));
-  animation:heartHover 2.4s steps(8,end) infinite
+  animation:heartDrift var(--heart-speed,5.2s) ease-in-out var(--heart-delay,0s) infinite alternate;
+  will-change:transform
 }
-@keyframes heartHover{50%{transform:translateY(-8px) scale(1.08)}}
+@keyframes heartDrift{
+  0%{transform:translate(0,0) rotate(-5deg) scale(.92)}
+  25%{transform:translate(var(--hx1,18px),var(--hy1,-12px)) rotate(4deg) scale(1.04)}
+  55%{transform:translate(var(--hx2,-16px),var(--hy2,16px)) rotate(-3deg) scale(.97)}
+  80%{transform:translate(var(--hx3,22px),var(--hy3,8px)) rotate(6deg) scale(1.08)}
+  100%{transform:translate(var(--hx4,-10px),var(--hy4,-18px)) rotate(-2deg) scale(1)}
+}
 .heart.caught{animation:heartCaught .28s steps(4,end) forwards}
 @keyframes heartCaught{to{transform:scale(2) rotate(20deg);opacity:0}}
 
@@ -344,6 +351,27 @@ svg{display:block}
 .mem.open,.mem.done{color:#fff;background:#242b52;transform:translate(-2px,-2px);box-shadow:6px 6px 0 #05060d}
 .mem.open:before,.mem.done:before{display:none}
 .mem.done{outline:1px solid rgba(143,225,187,.5);box-shadow:5px 5px 0 #08271d}
+
+
+.stage-actions{
+  display:none;align-items:center;justify-content:space-between;gap:12px;
+  margin-top:18px;padding-top:15px;border-top:1px dashed rgba(255,255,255,.12)
+}
+.stage-actions.show{display:flex;animation:viewIn .28s steps(5,end)}
+.stage-actions .stage-done{
+  display:flex;align-items:center;gap:8px;color:var(--mint);
+  font-family:"Press Start 2P";font-size:7px;line-height:1.7
+}
+.stage-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.stage-actions .btn.next{
+  background:linear-gradient(180deg,#ffd47d,#f4ac55);
+  border-color:rgba(255,201,106,.5);color:#2d1706;box-shadow:4px 4px 0 #573116
+}
+@media(max-width:560px){
+  .stage-actions{align-items:stretch;flex-direction:column}
+  .stage-buttons{display:grid;grid-template-columns:1fr 1fr}
+  .stage-actions .btn{justify-content:center}
+}
 
 /* quiz */
 .quiz-card{max-width:760px;margin:auto;padding:27px}
@@ -702,6 +730,13 @@ svg{display:block}
       <div class="progressbar"><i id="hp"></i></div>
       <div class="heartfield" id="hf"></div>
       <div class="status" id="hs">Procure com calma...</div>
+      <div class="stage-actions" id="heartsActions">
+        <div class="stage-done">✓ FASE CONCLUÍDA</div>
+        <div class="stage-buttons">
+          <button class="btn alt" type="button" onclick="resetHearts()">REPETIR</button>
+          <button class="btn next" type="button" onclick="show('memory')">PRÓXIMO &gt;</button>
+        </div>
+      </div>
     </div>
   </div></div>
 </section>
@@ -716,6 +751,13 @@ svg{display:block}
     <div class="card game">
       <div class="memory" id="memoryGrid"></div>
       <div class="status" id="ms">Pares encontrados: 0/8</div>
+      <div class="stage-actions" id="memoryActions">
+        <div class="stage-done">✓ FASE CONCLUÍDA</div>
+        <div class="stage-buttons">
+          <button class="btn alt" type="button" onclick="resetMemory()">REPETIR</button>
+          <button class="btn next" type="button" onclick="show('quiz')">PRÓXIMO &gt;</button>
+        </div>
+      </div>
     </div>
   </div></div>
 </section>
@@ -737,7 +779,13 @@ svg{display:block}
         <div class="result-icon"><svg class="icon xl"><use href="#i-heart"/></svg></div>
         <h2 class="pixel-title" style="font-size:24px">RESULTADO</h2>
         <p id="qrt" class="lead" style="font-size:17px"></p>
-        <button class="btn with-icon" onclick="restartQuiz()"><svg class="icon"><use href="#i-game"/></svg>JOGAR DE NOVO</button>
+        <div class="stage-actions show" id="quizActions">
+          <div class="stage-done">✓ FASE CONCLUÍDA</div>
+          <div class="stage-buttons">
+            <button class="btn alt with-icon" onclick="restartQuiz()"><svg class="icon"><use href="#i-game"/></svg>REPETIR</button>
+            <button class="btn next" type="button" onclick="show('date')">PRÓXIMO &gt;</button>
+          </div>
+        </div>
       </div>
     </div>
   </div></div>
@@ -772,6 +820,13 @@ svg{display:block}
         <button class="choice" data-v="Mais tempo juntos"><b>MAIS TEMPO</b><span>A opção mais suspeita de ser correta.</span></button>
       </div>
       <div class="ticket" id="ticket"></div>
+      <div class="stage-actions" id="dateActions">
+        <div class="stage-done">✓ FASE CONCLUÍDA</div>
+        <div class="stage-buttons">
+          <button class="btn alt" type="button" onclick="resetDate()">REPETIR</button>
+          <button class="btn next" type="button" onclick="show('notes')">PRÓXIMO &gt;</button>
+        </div>
+      </div>
     </div>
   </div></div>
 </section>
@@ -814,6 +869,13 @@ svg{display:block}
         <h3>O MAIS SIMPLES</h3>
         <p class="hidden">Eu só quero te ver. Pronto. Esse era o bilhete inteiro.</p>
       </article>
+    </div>
+    <div class="stage-actions" id="notesActions">
+      <div class="stage-done">✓ FASE CONCLUÍDA</div>
+      <div class="stage-buttons">
+        <button class="btn alt" type="button" onclick="resetNotes()">REPETIR</button>
+        <button class="btn next" type="button" onclick="show('vault')">PRÓXIMO &gt;</button>
+      </div>
     </div>
   </div></div>
 </section>
@@ -982,62 +1044,104 @@ function saudade(){
 
 /* hearts */
 let found=0;
-[[8,14],[72,12],[45,28],[18,62],[82,58],[55,73],[34,48]].forEach((p,i)=>{
-  const b=document.createElement('button');
-  b.className='heart';
-  b.innerHTML=svgIcon('i-heart');
-  b.querySelector('svg').style.width='32px';
-  b.querySelector('svg').style.height='32px';
-  b.style.left=p[0]+'%';
-  b.style.top=p[1]+'%';
-  b.style.animationDelay=(i*.28)+'s';
-  b.onclick=e=>{
-    if(b.disabled)return;
-    b.disabled=true;
-    b.classList.add('caught');
-    found++;
-    q('#hc').textContent=found;
-    q('#hp').style.width=(found/7*100)+'%';
-    q('#hs').textContent=found<7?'Ainda faltam '+(7-found)+'.':'Você achou todos.';
-    burst(e.clientX,e.clientY);
-    if(found===7){
-      state.hearts=true;save();
-      setTimeout(()=>celebrate('Eu poderia ter colocado 100 corações aqui e ainda seria pouco perto da vontade de te ver.'),220);
-    }
-  };
-  q('#hf').appendChild(b);
-});
+const heartPositions=[[8,14],[72,12],[45,28],[18,62],[82,58],[55,73],[34,48]];
+
+function createHearts(){
+  const field=q('#hf');
+  field.innerHTML='';
+  heartPositions.forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.className='heart';
+    b.innerHTML=svgIcon('i-heart');
+    b.querySelector('svg').style.width='32px';
+    b.querySelector('svg').style.height='32px';
+    b.style.left=p[0]+'%';
+    b.style.top=p[1]+'%';
+    b.style.setProperty('--heart-speed',(4.2+Math.random()*3.4).toFixed(2)+'s');
+    b.style.setProperty('--heart-delay',(-Math.random()*3).toFixed(2)+'s');
+    const r=()=>Math.round(-34+Math.random()*68)+'px';
+    b.style.setProperty('--hx1',r()); b.style.setProperty('--hy1',r());
+    b.style.setProperty('--hx2',r()); b.style.setProperty('--hy2',r());
+    b.style.setProperty('--hx3',r()); b.style.setProperty('--hy3',r());
+    b.style.setProperty('--hx4',r()); b.style.setProperty('--hy4',r());
+
+    b.onclick=e=>{
+      if(b.disabled)return;
+      b.disabled=true;
+      b.classList.add('caught');
+      found++;
+      q('#hc').textContent=found;
+      q('#hp').style.width=(found/7*100)+'%';
+      q('#hs').textContent=found<7?'Ainda faltam '+(7-found)+'.':'Você achou todos.';
+      burst(e.clientX,e.clientY);
+
+      if(found===7){
+        q('#heartsActions').classList.add('show');
+        state.hearts=true;save();
+        setTimeout(()=>celebrate('Eu poderia ter colocado 100 corações aqui e ainda seria pouco perto da vontade de te ver.'),220);
+      }
+    };
+    field.appendChild(b);
+  });
+}
+
+function resetHearts(){
+  found=0;
+  q('#hc').textContent='0';
+  q('#hp').style.width='0%';
+  q('#hs').textContent='Procure com calma...';
+  q('#heartsActions').classList.remove('show');
+  createHearts();
+}
+createHearts();
 
 /* memory */
 const icons=['🌙','📖','✨','☕','🌹','🐈','💌','⭐'];
-const deck=[...icons,...icons].sort(()=>Math.random()-.5);
 let open=[],pairs=0,busy=false;
-deck.forEach(ic=>{
-  const b=document.createElement('button');
-  b.className='mem';
-  b.textContent=ic;
-  b.dataset.i=ic;
-  b.onclick=()=>{
-    if(busy||b.classList.contains('done')||b.classList.contains('open'))return;
-    b.classList.add('open');open.push(b);
-    if(open.length===2){
-      busy=true;
-      const [a,c]=open;
-      if(a.dataset.i===c.dataset.i){
-        a.classList.add('done');c.classList.add('done');
-        pairs++;open=[];busy=false;
-        q('#ms').textContent='Pares encontrados: '+pairs+'/8';
-        if(pairs===8){
-          state.memory=true;save();
-          setTimeout(()=>celebrate('Agora falta guardar mais uma lembrança: sexta à noite. ♡'),250);
+
+function createMemory(){
+  const grid=q('#memoryGrid');
+  grid.innerHTML='';
+  open=[];pairs=0;busy=false;
+  q('#ms').textContent='Pares encontrados: 0/8';
+  q('#memoryActions').classList.remove('show');
+
+  const deck=[...icons,...icons].sort(()=>Math.random()-.5);
+  deck.forEach(ic=>{
+    const b=document.createElement('button');
+    b.className='mem';
+    b.textContent=ic;
+    b.dataset.i=ic;
+    b.onclick=()=>{
+      if(busy||b.classList.contains('done')||b.classList.contains('open'))return;
+      b.classList.add('open');open.push(b);
+
+      if(open.length===2){
+        busy=true;
+        const [a,c]=open;
+        if(a.dataset.i===c.dataset.i){
+          a.classList.add('done');c.classList.add('done');
+          pairs++;open=[];busy=false;
+          q('#ms').textContent='Pares encontrados: '+pairs+'/8';
+
+          if(pairs===8){
+            q('#memoryActions').classList.add('show');
+            state.memory=true;save();
+            setTimeout(()=>celebrate('Agora falta guardar mais uma lembrança: sexta à noite. ♡'),250);
+          }
+        }else{
+          setTimeout(()=>{
+            a.classList.remove('open');c.classList.remove('open');
+            open=[];busy=false;
+          },650);
         }
-      }else{
-        setTimeout(()=>{a.classList.remove('open');c.classList.remove('open');open=[];busy=false},650);
       }
-    }
-  };
-  q('#memoryGrid').appendChild(b);
-});
+    };
+    grid.appendChild(b);
+  });
+}
+function resetMemory(){createMemory()}
+createMemory();
 
 /* quiz */
 const quiz=[
@@ -1084,9 +1188,17 @@ qa('.choices').forEach(g=>g.querySelectorAll('.choice').forEach(b=>b.onclick=()=
   if(Object.values(pick).every(Boolean)){
     q('#ticket').classList.add('show');
     q('#ticket').innerHTML='<b>'+svgIcon('i-ticket')+' INGRESSO PARA SEXTA</b><br><br>'+pick.start+' · '+pick.vibe+' · '+pick.end+'<br><br><span style="color:var(--muted)">Validade: 09/10/2026, a partir das 18h. Companhia obrigatória: eu. ♡</span>';
+    q('#dateActions').classList.add('show');
     if(!state.date){state.date=true;save();celebrate('Ingresso emitido. Agora só falta a sexta chegar.');}
   }
 }));
+function resetDate(){
+  pick.start=null;pick.vibe=null;pick.end=null;
+  qa('.choices .choice').forEach(b=>b.classList.remove('on'));
+  q('#ticket').classList.remove('show');
+  q('#ticket').innerHTML='';
+  q('#dateActions').classList.remove('show');
+}
 
 /* notes */
 let openedNotes=0;
@@ -1097,11 +1209,21 @@ qa('.note').forEach(n=>n.onclick=()=>{
     openedNotes++;
     burst(innerWidth/2,innerHeight/2);
     if(openedNotes===qa('.note').length){
+      q('#notesActions').classList.add('show');
       state.notes=true;save();
       celebrate('Eu sabia que você não ia conseguir abrir só um. ♡');
     }
   }
 });
+function resetNotes(){
+  openedNotes=0;
+  qa('.note').forEach(n=>{
+    n.classList.remove('open');
+    const hint=n.querySelector('.open-hint');
+    if(hint)hint.textContent='ABRIR';
+  });
+  q('#notesActions').classList.remove('show');
+}
 
 /* vault */
 function updateVault(){
@@ -1128,7 +1250,7 @@ function updateVault(){
 }
 refreshProgress();
 </script>
-<script src="./sound.js?v=5"></script>
+<script src="./sound.js?v=6"></script>
 
 </body>
 </html>
