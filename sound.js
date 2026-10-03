@@ -2,124 +2,225 @@
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   let ctx = null;
   let master = null;
-  let sfxEnabled = localStorage.getItem("amorSfx") !== "off";
   let lastScore = Number((document.querySelector("#score")?.textContent || "0").split("/")[0]) || 0;
 
-  const playlist = [
-    { id: "qvTJKqZfBjg", title: "Te Esperando", artist: "Luan Santana" },
-    { id: "dl0Dp_FRMo4", title: "ILHA", artist: "Luan Santana" }
+  const MUSIC_VOLUME = 0.72;
+  const FADE_IN_MS = 1800;
+  const FADE_OUT_MS = 2200;
+
+  const tracks = [
+    "./assets/audio/te-esperando.mp3",
+    "./assets/audio/ilha.mp3"
   ];
 
-  let player = null;
+  const musicBtn = document.querySelector("#musicOpen");
+  const musicBars = document.querySelector("#musicBars");
+
+  const audio = new Audio();
+  audio.preload = "auto";
+  audio.volume = 0;
+  audio.playsInline = true;
+
   let track = 0;
-  let ready = false;
-  let isPlaying = false;
-  let pendingStart = false;
-  let duckTimer = null;
-  const NORMAL_VOLUME = 72;
-  const DUCK_VOLUME = 22;
+  let started = false;
+  let playing = false;
+  let fadingOut = false;
+  let fadeTimer = null;
 
-  const dock = document.querySelector("#musicDock");
-  const panel = document.querySelector("#musicPanel");
-  const openBtn = document.querySelector("#musicOpen");
-  const playBtn = document.querySelector("#musicPlay");
-  const nextBtn = document.querySelector("#musicNext");
-  const sfxBtn = document.querySelector("#sfxToggle");
-  const titleEl = document.querySelector("#musicTitle");
-  const statusEl = document.querySelector("#musicStatus");
-  const fallbackEl = document.querySelector("#musicFallback");
-
-  function ensureAudio() {
-    if (!AudioCtx) return Promise.resolve(null);
+  const getCtx = async () => {
+    if (!AudioCtx) return null;
     if (!ctx) {
       ctx = new AudioCtx();
       master = ctx.createGain();
-      master.gain.value = 0.95;
+      master.gain.value = 1;
       master.connect(ctx.destination);
     }
     if (ctx.state === "suspended") {
-      return ctx.resume().then(() => ctx).catch(() => null);
+      try { await ctx.resume(); } catch {}
     }
-    return Promise.resolve(ctx);
-  }
+    return ctx;
+  };
 
-  function tone(freq, duration = 0.08, type = "square", volume = 0.075, delay = 0) {
-    if (!sfxEnabled) return;
-    ensureAudio().then(ac => {
+  function tone(freq, duration = 0.08, type = "square", volume = 0.07, delay = 0) {
+    getCtx().then(ac => {
       if (!ac || !master) return;
       const t = ac.currentTime + delay;
       const osc = ac.createOscillator();
       const gain = ac.createGain();
+
       osc.type = type;
       osc.frequency.setValueAtTime(freq, t);
       gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(volume, t + 0.008);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, volume), t + 0.008);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
       osc.connect(gain).connect(master);
       osc.start(t);
-      osc.stop(t + duration + 0.025);
+      osc.stop(t + duration + 0.03);
     });
-  }
-
-  function duckMusic(ms = 420) {
-    if (!player || !ready || !isPlaying || typeof player.setVolume !== "function") return;
-    clearTimeout(duckTimer);
-    try { player.setVolume(DUCK_VOLUME); } catch {}
-    duckTimer = setTimeout(() => {
-      if (player && ready && isPlaying) {
-        try { player.setVolume(NORMAL_VOLUME); } catch {}
-      }
-    }, ms);
   }
 
   const SFX = {
     click() {
-      duckMusic(240);
-      tone(440, .07, "square", .065);
-      tone(660, .06, "square", .045, .045);
+      tone(430, .055, "square", .055);
+      tone(650, .05, "square", .035, .04);
     },
     flip() {
-      duckMusic(280);
-      tone(300, .07, "square", .065);
-      tone(460, .07, "square", .06, .05);
+      tone(300, .07, "square", .06);
+      tone(470, .07, "square", .055, .05);
     },
     heart() {
-      duckMusic(360);
-      tone(660, .09, "sine", .09);
-      tone(880, .11, "sine", .08, .065);
+      tone(660, .09, "sine", .085);
+      tone(880, .11, "sine", .07, .065);
     },
     select() {
-      duckMusic(260);
-      tone(520, .08, "triangle", .075);
-      tone(620, .06, "triangle", .05, .045);
+      tone(520, .07, "triangle", .065);
+      tone(630, .06, "triangle", .045, .045);
     },
     note() {
-      duckMusic(420);
-      tone(392, .10, "triangle", .07);
-      tone(523, .13, "triangle", .065, .075);
+      tone(392, .10, "triangle", .06);
+      tone(523, .13, "triangle", .055, .075);
     },
     success() {
-      duckMusic(760);
-      tone(523, .13, "square", .075);
-      tone(659, .14, "square", .07, .10);
-      tone(784, .21, "square", .065, .21);
+      tone(523, .13, "square", .07);
+      tone(659, .14, "square", .065, .10);
+      tone(784, .20, "square", .06, .21);
     }
   };
   window.SFX = SFX;
 
-  function unlockWithGesture() {
-    ensureAudio().then(() => {
-      if (sfxEnabled) {
-        tone(740, .035, "square", .022);
-      }
-    });
+  function clearFade() {
+    if (fadeTimer) {
+      cancelAnimationFrame(fadeTimer);
+      fadeTimer = null;
+    }
   }
-  document.addEventListener("pointerdown", unlockWithGesture, { once: true, passive: true });
 
-  document.addEventListener("click", (e) => {
+  function fadeTo(target, duration, done) {
+    clearFade();
+    const from = audio.volume;
+    const diff = target - from;
+    const start = performance.now();
+
+    const step = now => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      audio.volume = Math.max(0, Math.min(1, from + diff * eased));
+
+      if (p < 1) {
+        fadeTimer = requestAnimationFrame(step);
+      } else {
+        fadeTimer = null;
+        audio.volume = target;
+        if (done) done();
+      }
+    };
+    fadeTimer = requestAnimationFrame(step);
+  }
+
+  function renderMusic() {
+    musicBtn?.classList.toggle("playing", playing);
+    musicBtn?.setAttribute("aria-pressed", String(playing));
+    if (musicBars) musicBars.classList.toggle("active", playing);
+  }
+
+  async function loadTrack(index, autoPlay = true) {
+    track = index;
+    fadingOut = false;
+    clearFade();
+
+    audio.src = tracks[track];
+    audio.volume = 0;
+    audio.load();
+
+    if (autoPlay) {
+      try {
+        await audio.play();
+        playing = true;
+        renderMusic();
+        fadeTo(MUSIC_VOLUME, FADE_IN_MS);
+      } catch {
+        playing = false;
+        renderMusic();
+      }
+    }
+  }
+
+  async function startMusic() {
+    await getCtx();
+
+    if (!started) {
+      started = true;
+      await loadTrack(0, true);
+      return;
+    }
+
+    if (playing) {
+      fadeTo(0, 500, () => {
+        audio.pause();
+        playing = false;
+        renderMusic();
+      });
+    } else {
+      try {
+        await audio.play();
+        playing = true;
+        renderMusic();
+        fadeTo(MUSIC_VOLUME, 700);
+      } catch {}
+    }
+  }
+
+  musicBtn?.addEventListener("click", () => {
+    startMusic();
+    SFX.click();
+  });
+
+  audio.addEventListener("play", () => {
+    playing = true;
+    renderMusic();
+  });
+
+  audio.addEventListener("pause", () => {
+    if (!audio.ended) {
+      playing = false;
+      renderMusic();
+    }
+  });
+
+  audio.addEventListener("timeupdate", () => {
+    if (!audio.duration || !playing || fadingOut) return;
+    const remaining = audio.duration - audio.currentTime;
+
+    if (remaining <= FADE_OUT_MS / 1000 + .15) {
+      fadingOut = true;
+      fadeTo(0, Math.max(350, remaining * 1000 - 80));
+    }
+  });
+
+  audio.addEventListener("ended", async () => {
+    playing = false;
+    renderMusic();
+
+    if (track < tracks.length - 1) {
+      await loadTrack(track + 1, true);
+    }
+  });
+
+  audio.addEventListener("error", () => {
+    playing = false;
+    renderMusic();
+    console.error("Não foi possível carregar a trilha local:", audio.currentSrc);
+  });
+
+  document.addEventListener("pointerdown", () => {
+    getCtx();
+  }, { once: true, passive: true });
+
+  document.addEventListener("click", e => {
     const button = e.target.closest("button,.note");
-    if (!button) return;
-    if (button.id === "sfxToggle") return;
+    if (!button || button.id === "musicOpen") return;
+
     if (button.classList.contains("heart")) SFX.heart();
     else if (button.classList.contains("mem")) SFX.flip();
     else if (button.classList.contains("choice") || button.classList.contains("option")) SFX.select();
@@ -136,182 +237,5 @@
     }).observe(scoreEl, { childList: true, characterData: true, subtree: true });
   }
 
-  function renderSfx() {
-    if (!sfxBtn) return;
-    sfxBtn.classList.toggle("off", !sfxEnabled);
-    sfxBtn.setAttribute("aria-pressed", String(sfxEnabled));
-    sfxBtn.querySelector("span").textContent = sfxEnabled ? "SFX ON" : "SFX OFF";
-  }
-  sfxBtn?.addEventListener("click", async () => {
-    sfxEnabled = !sfxEnabled;
-    localStorage.setItem("amorSfx", sfxEnabled ? "on" : "off");
-    renderSfx();
-    if (sfxEnabled) {
-      await ensureAudio();
-      SFX.success();
-    }
-  });
-  renderSfx();
-
-  function setTrackUi(status = "") {
-    const item = playlist[track];
-    if (titleEl) titleEl.textContent = item.title;
-    if (statusEl) statusEl.textContent = status || item.artist;
-    if (fallbackEl) fallbackEl.href = "https://www.youtube.com/watch?v=" + item.id;
-    if (playBtn) {
-      playBtn.classList.toggle("playing", isPlaying);
-      const label = playBtn.querySelector("span");
-      if (label) label.textContent = isPlaying ? "PAUSAR" : "TOCAR";
-      playBtn.setAttribute("aria-label", isPlaying ? "Pausar música" : "Tocar música");
-    }
-  }
-
-  function openDock() {
-    dock?.classList.add("open");
-    panel?.setAttribute("aria-hidden", "false");
-  }
-
-  function requestPlay() {
-    openDock();
-    pendingStart = true;
-    if (!player || !ready) {
-      setTrackUi("CARREGANDO PLAYER...");
-      return;
-    }
-    pendingStart = false;
-    try {
-      player.unMute();
-      player.setVolume(NORMAL_VOLUME);
-      player.playVideo();
-      setTrackUi("INICIANDO...");
-    } catch {
-      setTrackUi("TOQUE EM TOCAR");
-    }
-  }
-
-  openBtn?.addEventListener("click", () => {
-    ensureAudio();
-    if (!dock?.classList.contains("open")) {
-      requestPlay();
-    } else if (!isPlaying) {
-      requestPlay();
-    } else {
-      dock.classList.remove("open");
-      panel?.setAttribute("aria-hidden", "true");
-    }
-  });
-
-  playBtn?.addEventListener("click", () => {
-    ensureAudio();
-    openDock();
-    if (!player || !ready) {
-      pendingStart = true;
-      setTrackUi("CARREGANDO PLAYER...");
-      return;
-    }
-    if (isPlaying) {
-      player.pauseVideo();
-    } else {
-      try {
-        player.unMute();
-        player.setVolume(NORMAL_VOLUME);
-        player.playVideo();
-      } catch {
-        setTrackUi("TOQUE NOVAMENTE");
-      }
-    }
-  });
-
-  nextBtn?.addEventListener("click", () => {
-    ensureAudio();
-    openDock();
-    if (!player || !ready) {
-      setTrackUi("CARREGANDO PLAYER...");
-      return;
-    }
-    track = track < playlist.length - 1 ? track + 1 : 0;
-    try {
-      player.loadVideoById(playlist[track].id);
-      player.unMute();
-      player.setVolume(NORMAL_VOLUME);
-      player.playVideo();
-      setTrackUi("TROCANDO FAIXA...");
-    } catch {
-      setTrackUi("NÃO FOI POSSÍVEL TROCAR");
-    }
-  });
-
-  window.onYouTubeIframeAPIReady = function () {
-    player = new YT.Player("ytPlayer", {
-      width: "300",
-      height: "200",
-      videoId: playlist[0].id,
-      playerVars: {
-        autoplay: 0,
-        playsinline: 1,
-        controls: 1,
-        rel: 0,
-        modestbranding: 1,
-        origin: window.location.origin
-      },
-      events: {
-        onReady() {
-          ready = true;
-          try {
-            player.unMute();
-            player.setVolume(NORMAL_VOLUME);
-          } catch {}
-          setTrackUi("PRONTA — CLIQUE AQUI");
-          if (pendingStart) {
-            pendingStart = false;
-            try {
-              player.playVideo();
-            } catch {
-              setTrackUi("TOQUE EM TOCAR");
-            }
-          }
-        },
-        onStateChange(event) {
-          if (event.data === YT.PlayerState.PLAYING) {
-            isPlaying = true;
-            try { player.setVolume(NORMAL_VOLUME); } catch {}
-            setTrackUi();
-          } else if (event.data === YT.PlayerState.PAUSED) {
-            isPlaying = false;
-            setTrackUi("PAUSADA");
-          } else if (event.data === YT.PlayerState.ENDED) {
-            isPlaying = false;
-            if (track < playlist.length - 1) {
-              track++;
-              try {
-                player.loadVideoById(playlist[track].id);
-                player.unMute();
-                player.setVolume(NORMAL_VOLUME);
-                player.playVideo();
-                setTrackUi("PRÓXIMA FAIXA...");
-              } catch {
-                setTrackUi("TOQUE EM TOCAR");
-              }
-            } else {
-              setTrackUi("PLAYLIST FINALIZADA");
-            }
-          }
-        },
-        onError(event) {
-          isPlaying = false;
-          pendingStart = false;
-          setTrackUi("ERRO NO PLAYER — ABRA NO YOUTUBE");
-          if (fallbackEl) fallbackEl.hidden = false;
-        }
-      }
-    });
-  };
-
-  window.addEventListener("load", () => {
-    setTimeout(() => {
-      if (!ready && statusEl) statusEl.textContent = "PLAYER CARREGANDO...";
-    }, 1800);
-  });
-
-  setTrackUi("CLIQUE AQUI PARA OUVIR");
+  renderMusic();
 })();
