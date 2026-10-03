@@ -699,6 +699,30 @@ svg{display:block}
   .vault-final-actions .btn{width:100%}
 }
 
+
+.final-love{
+  margin-top:6px;text-align:center
+}
+.final-love-photo{
+  width:min(360px,100%);margin:16px auto 14px;
+  overflow:hidden;border:1px solid rgba(255,201,106,.34);
+  box-shadow:6px 6px 0 #05060d,0 0 26px rgba(255,141,181,.10);
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)
+}
+.final-love-photo img{
+  display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center
+}
+.final-love-message{
+  margin:12px auto 0;max-width:560px;color:var(--text);
+  font-size:20px;line-height:1.55
+}
+.final-love-message strong{
+  color:var(--pink2)
+}
+.final-heart-drop{
+  filter:drop-shadow(0 0 8px rgba(255,141,181,.5))
+}
+
 </style>
 </head>
 <body>
@@ -1327,6 +1351,29 @@ function restartExperience(){
   setTimeout(()=>window.SFX?.success?.(),120);
 }
 
+let finalHeartRainTimer=null;
+function startFinalHeartRain(){
+  if(finalHeartRainTimer) return;
+
+  const spawn=()=>{
+    for(let i=0;i<6;i++){
+      const e=document.createElement('span');
+      e.className='drop final-heart-drop';
+      e.innerHTML=svgIcon(i%4===0?'i-spark':'i-heart');
+      e.style.left=(Math.random()*100)+'vw';
+      e.style.animationDelay=(Math.random()*.5)+'s';
+      e.style.color=i%5===0?'var(--gold)':'var(--pink)';
+      e.style.opacity=(.55+Math.random()*.4).toFixed(2);
+      e.style.transform='scale('+(0.7+Math.random()*.7).toFixed(2)+')';
+      q('#rain').appendChild(e);
+      setTimeout(()=>e.remove(),4200);
+    }
+  };
+
+  spawn();
+  finalHeartRainTimer=setInterval(spawn,950);
+}
+
 /* vault */
 function updateVault(){
   const done=Object.values(state).filter(Boolean).length;
@@ -1346,13 +1393,18 @@ function updateVault(){
   }else{
     icon.innerHTML='<svg class="icon xl"><use href="#i-unlock"/></svg>';
     q('#vt').textContent='CHEGOU O GRANDE DIA. ♡';
-    q('#vp').textContent='Finalmente é sexta. Agora a melhor parte acontece fora da tela.';
-    q('#vb').innerHTML='<b>Fecha o site e vem me ver.</b> ♡';
+    q('#vp').textContent='Finalmente é sexta. O grande dia chegou.';
+    q('#vb').innerHTML=
+      '<div class="final-love">'+
+        '<div class="final-love-photo"><img src="./assets/IMG-20260816-WA0092.jpg" alt="Uma foto nossa"></div>'+
+        '<div class="final-love-message"><strong>Nem Freud explica</strong> o amor que sinto por você. ❤️</div>'+
+      '</div>';
+    startFinalHeartRain();
   }
 }
 refreshProgress();
 </script>
-<script src="./sound.js?v=10"></script>
+<script src="./sound.js?v=11"></script>
 
 </body>
 </html>
