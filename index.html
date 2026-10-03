@@ -679,6 +679,26 @@ svg{display:block}
   .bottom-actions .music-chip strong{font-size:7px}
 }
 
+
+.vault-final-actions{
+  display:flex;justify-content:center;gap:10px;flex-wrap:wrap;
+  margin-top:24px;padding-top:18px;border-top:1px dashed rgba(255,255,255,.12)
+}
+.vault-final-actions .btn{
+  min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  text-decoration:none
+}
+.whatsapp-btn{
+  background:linear-gradient(180deg,#9ce6bc,#66c996)!important;
+  border-color:rgba(143,225,187,.55)!important;
+  color:#082418!important;
+  box-shadow:4px 4px 0 #144b33!important
+}
+@media(max-width:560px){
+  .vault-final-actions{display:grid;grid-template-columns:1fr}
+  .vault-final-actions .btn{width:100%}
+}
+
 </style>
 </head>
 <body>
@@ -930,6 +950,15 @@ svg{display:block}
       <div class="vault-box" id="vb">Complete os 5 jogos para formar a chave.</div>
       <div class="keyline">CHAVE: <b id="keyProgress">0/5 PARTES</b></div>
       <div class="key-parts" id="keyParts"><i></i><i></i><i></i><i></i><i></i></div>
+
+      <div class="vault-final-actions">
+        <button class="btn alt with-icon" type="button" onclick="restartExperience()">
+          <svg class="icon"><use href="#i-game"/></svg>RECOMEÇAR
+        </button>
+        <a class="btn next with-icon whatsapp-btn" href="https://wa.me/5579988037605?text=Cheguei%20at%C3%A9%20o%20final%20%E2%9D%A4%EF%B8%8F" target="_blank" rel="noopener">
+          <svg class="icon"><use href="#i-mail"/></svg>MANDAR MSG PARA RAFAEL
+        </a>
+      </div>
     </div>
   </div></div>
 </section>
@@ -1278,6 +1307,26 @@ function resetNotes(){
   q('#notesActions').classList.remove('show');
 }
 
+function restartExperience(){
+  localStorage.removeItem('amorProgress');
+
+  state.hearts=false;
+  state.memory=false;
+  state.quiz=false;
+  state.date=false;
+  state.notes=false;
+
+  resetHearts();
+  resetMemory();
+  restartQuiz();
+  resetDate();
+  resetNotes();
+
+  refreshProgress();
+  show('home');
+  setTimeout(()=>window.SFX?.success?.(),120);
+}
+
 /* vault */
 function updateVault(){
   const done=Object.values(state).filter(Boolean).length;
@@ -1303,7 +1352,7 @@ function updateVault(){
 }
 refreshProgress();
 </script>
-<script src="./sound.js?v=9"></script>
+<script src="./sound.js?v=10"></script>
 
 </body>
 </html>
