@@ -62,29 +62,29 @@
 
   const SFX = {
     click() {
-      tone(430, .055, "square", .055);
-      tone(650, .05, "square", .035, .04);
+      tone(420, .075, "square", .11);
+      tone(640, .065, "square", .075, .045);
     },
     flip() {
-      tone(300, .07, "square", .06);
-      tone(470, .07, "square", .055, .05);
+      tone(290, .085, "square", .10);
+      tone(470, .085, "square", .09, .055);
     },
     heart() {
-      tone(660, .09, "sine", .085);
-      tone(880, .11, "sine", .07, .065);
+      tone(650, .10, "sine", .13);
+      tone(890, .13, "sine", .11, .07);
     },
     select() {
-      tone(520, .07, "triangle", .065);
-      tone(630, .06, "triangle", .045, .045);
+      tone(510, .085, "triangle", .105);
+      tone(640, .07, "triangle", .08, .05);
     },
     note() {
-      tone(392, .10, "triangle", .06);
-      tone(523, .13, "triangle", .055, .075);
+      tone(390, .11, "triangle", .095);
+      tone(525, .15, "triangle", .09, .08);
     },
     success() {
-      tone(523, .13, "square", .07);
-      tone(659, .14, "square", .065, .10);
-      tone(784, .20, "square", .06, .21);
+      tone(523, .15, "square", .11);
+      tone(659, .16, "square", .10, .11);
+      tone(784, .23, "square", .095, .23);
     }
   };
   window.SFX = SFX;
