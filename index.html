@@ -496,6 +496,21 @@ svg{display:block}
   padding-top:8px;color:#6f748d;font-size:12px;line-height:1.35;text-align:center
 }
 
+
+.music-bars{display:flex;align-items:flex-end;gap:2px;height:16px;margin-left:auto}
+.music-bars i{display:block;width:3px;height:5px;background:#565c77}
+.music-bars.active i{background:var(--mint);box-shadow:0 0 7px rgba(143,225,187,.45);animation:musicBar .72s steps(4,end) infinite alternate}
+.music-bars.active i:nth-child(2){animation-delay:.16s}
+.music-bars.active i:nth-child(3){animation-delay:.32s}
+@keyframes musicBar{0%{height:4px}50%{height:14px}100%{height:8px}}
+.love-footer{
+  width:min(1080px,calc(100% - 28px));margin:0 auto;
+  padding:26px 0 34px;text-align:center;color:#8b8da4;
+  font-family:"Press Start 2P",monospace;font-size:7px;line-height:1.8;
+  border-top:1px solid rgba(255,255,255,.055)
+}
+.love-footer .footer-heart{color:var(--pink);text-shadow:0 0 9px rgba(255,141,181,.45)}
+
 @media(max-width:980px){
   .brand-sub{display:none}
   .tabs-shell{margin-left:auto}
@@ -821,25 +836,13 @@ svg{display:block}
   </div></div>
 </section>
 </div>
-
+<footer class="love-footer">Criado com muito amor por Rafael para IA <span class="footer-heart">❤️</span></footer>
 
 <div class="music-dock" id="musicDock">
-  <div class="music-panel" id="musicPanel" aria-hidden="true">
-    <div class="music-video"><div id="ytPlayer"></div></div>
-    <div class="music-meta">
-      <span id="musicStatus">CLIQUE EM TOCAR</span>
-    </div>
-    <div class="music-actions">
-      <button id="musicPlay" type="button" aria-label="Tocar música"><svg class="icon"><use href="#i-play"/></svg><span>TOCAR</span></button>
-      <button id="musicNext" type="button" aria-label="Próxima música"><svg class="icon"><use href="#i-next"/></svg><span>PRÓXIMA</span></button>
-      <button id="sfxToggle" type="button" aria-pressed="true"><svg class="icon"><use href="#i-volume"/></svg><span>SFX ON</span></button>
-    </div>
-    <div class="music-note">Um toque já abre e tenta iniciar a música. Os efeitos abaixam a trilha por alguns instantes.</div>
-    <a class="music-fallback" id="musicFallback" href="https://www.youtube.com/watch?v=qvTJKqZfBjg" target="_blank" rel="noopener" hidden>ABRIR ÁUDIO</a>
-  </div>
-  <button class="music-chip" id="musicOpen" type="button" aria-label="Clique aqui para ouvir a música">
+  <button class="music-chip" id="musicOpen" type="button" aria-label="Clique aqui para ativar ou pausar o som" aria-pressed="false">
     <svg class="icon" style="color:var(--gold)"><use href="#i-volume"/></svg>
     <div class="music-copy"><strong>CLIQUE AQUI</strong></div>
+    <span class="music-bars" id="musicBars" aria-hidden="true"><i></i><i></i><i></i></span>
   </button>
 </div>
 
@@ -1125,7 +1128,7 @@ function updateVault(){
 }
 refreshProgress();
 </script>
-<script src="./sound.js?v=4"></script>
-<script src="https://www.youtube.com/iframe_api"></script>
+<script src="./sound.js?v=5"></script>
+
 </body>
 </html>
